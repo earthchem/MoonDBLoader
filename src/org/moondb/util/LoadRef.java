@@ -33,7 +33,7 @@ public class LoadRef {
 			        citationDao.saveDataToDB();
 			        citation.setCitationNum(citationDao.getCitationNum());
 			        PersonDao personDao = new PersonDao(citation);
-			        personDao.saveData();
+			        personDao.saveDataToDB();
 			        /*
 			        System.out.println("Title is :" + citation.getRefTitle());
 			        System.out.println("Type is :" + citation.getRefType());

@@ -29,6 +29,12 @@ public class CitationDao {
 		return citationNum;
 	}
 	
+	public String getCitationCode() {
+		String query = "SELECT citation_code FROM citation WHERE moondbnum='" + citation.getRefNum() + "'";
+		String citationCode = (String)DatabaseUtil.getUniqueResult(query);
+		return citationCode;
+	}
+	
 	public boolean isCitationCodeExist(String citationCode) {
 		String query = "SELECT COUNT(*) FROM citation WHERE citation_code='" + citationCode + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
@@ -64,7 +70,7 @@ public class CitationDao {
 			String citationCode = generateUniqueCitationCode(citation.getCitationCode());
 			//save data to table citation
 			query = "INSERT INTO citation(title,publication_year,citation_link,journal,issue,volume,pages,moondbnum,citation_type,citation_code) VALUES('"+citation.getRefTitle()+"',"+citation.getRefYear()+",'"+citation.getRefUrl()+"','"+citation.getRefJournal()+"','"+citation.getRefIssue()+"','"+citation.getRefVolume()+"','"+citation.getRefPages()+"','"+citation.getRefNum()+"','"+citation.getRefType()+"','"+citationCode+"')";
-			System.out.println(query);
+			//System.out.println(query);
 			DatabaseUtil.update(query);
 			if(citation.getRefDOI() != null) {
 				//save data to table citation_external_identifier

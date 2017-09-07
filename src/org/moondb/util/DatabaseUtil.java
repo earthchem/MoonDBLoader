@@ -23,7 +23,7 @@ public class DatabaseUtil {
         Connection connection;
          
         Properties prop = new Properties();
-        System.out.println("test");
+        //System.out.println("test");
         prop.load(new FileInputStream("db.properties"));
 
         String host = prop.getProperty("url").toString().trim();

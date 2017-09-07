@@ -1,5 +1,6 @@
 package org.moondb.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
@@ -8,15 +9,24 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.moondb.dao.CitationDao;
+import org.moondb.model.Citation;
 public class LoadData {
 
 	public static void main(String[] args) throws IOException{
-		FileInputStream file = new FileInputStream("data\\MoonDB 0623.xls");
+		File file = new File("data\\MoonDB 0623.xls");
+		String fileName = file.getName();
+		FileInputStream inputStream = new FileInputStream(file);
+		Citation citation = new Citation();
+		citation.setRefNum(fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf(".")));
+		CitationDao citationDao = new CitationDao(citation);
+		citation.setCitationCode(citationDao.getCitationCode());
+		System.out.println(citation.getRefNum());
 		try {
 
 			//Get the workbook instance for XLS file 
 			
-			HSSFWorkbook workbook = new HSSFWorkbook(file);
+			HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
 			//Get first sheet from the workbook
 			HSSFSheet sheet = workbook.getSheet("SAMPLES");
 			//Get iterator to all the rows in current sheet
@@ -57,7 +67,7 @@ public class LoadData {
 			workbook.close();
 		} finally {
 		
-			file.close();
+			inputStream.close();
 		}
 	}
 }

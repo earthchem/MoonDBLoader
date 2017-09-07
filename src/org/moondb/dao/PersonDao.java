@@ -12,7 +12,7 @@ public class PersonDao {
 		this.citation = citation;
 	}
 	
-	public void saveData() {
+	public void saveDataToDB() {
 		List<Author> authors = citation.getAuthors();
 		String query;
 		Integer authorOrder = 0;
