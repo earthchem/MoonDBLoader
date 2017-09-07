@@ -31,13 +31,13 @@ public class DatabaseUtil {
         String password = prop.getProperty("password").toString().trim();
         String driver = prop.getProperty("driver").toString().trim();
  
-        System.out.println("host: " + host + "\\username: " + username + "\\password: " + password);
+        //System.out.println("host: " + host + "\\username: " + username + "\\password: " + password);
  
         Class.forName(driver);
-        System.out.println("--------------------------");
-        System.out.println("DRIVER: " + driver);
+        //System.out.println("--------------------------");
+       // System.out.println("DRIVER: " + driver);
         connection = DriverManager.getConnection(host, username, password);
-        System.out.println("CONNECTION: " + connection);
+       // System.out.println("CONNECTION: " + connection);
  
         return connection;
     }

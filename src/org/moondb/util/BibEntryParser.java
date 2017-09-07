@@ -67,6 +67,7 @@ public class BibEntryParser {
                 }
                 
     		}
+    		citation.setCitationCode(citation.getAuthors().get(0).getLastName() +", " + citation.getRefYear().toString());
     		return citation;
         } catch (Exception e) {
         	System.out.println("error in parser: " + e.toString());

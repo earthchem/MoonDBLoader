@@ -1,5 +1,20 @@
 package org.moondb.model;
-
+/*
+ * MoonDB(table:citation)		Template(Bibtex:element)		Java(class:Citation)
+ * title						title						    refTitle
+ * citation_type				type							refType
+ * journal						journal							refJournal
+ * volume						volume							refVolume
+ * issue						Issue							refIssue
+ * publication_year				year							refYear
+ * citation_link				url								refUrl
+ * pages						pages							refPages
+ * 								DOI								refDOI
+ * 								author							authors
+ *moondbnum						moondbnum						refNum
+ *citation_num													citationNum
+ *citation_code													citationCode
+ */
 
 import java.util.List;
 
@@ -18,6 +33,7 @@ public class Citation {
 	private String refUrl;
 	private String refNum;          //Identifier for citation from Bibtext file
 	private Integer citationNum;    //Citation ID from table citation;
+	private String citationCode;
 	private List<Author> authors;
 
 	
@@ -109,6 +125,14 @@ public class Citation {
     
     public void setCitationNum(Integer citationNum) {
     	this.citationNum = citationNum;
+    }
+    
+    public String getCitationCode() {
+    	return citationCode;
+    }
+    
+    public void setCitationCode(String citationCode) {
+    	this.citationCode = citationCode;
     }
     
 	public List<Author> getAuthors() {
