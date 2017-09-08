@@ -2,15 +2,13 @@ package org.moondb.model;
 /*
  * MoonDB(table:dataset)	Template(sheet:TABLE_TITLE)	Java(Class:Dataset)	
  * dataset_type											datasetType
- * dataset_code											datasetCode
  * dataset_title			TABLE_TITLE					datasetTitle
- * 							Number of TABLE_IN_REF		tableNum
+ * dataset_code				Number of TABLE_IN_REF		tableNum
  */
 public class Dataset {
 	private String datasetType;
-	private String datasetCode;
 	private String datasetTitle;
-	private String tableNum;
+	private String tableNum;  //used for creating dataset_code
 	
 	public String getDatasetType() {
 		return datasetType;
@@ -20,13 +18,6 @@ public class Dataset {
 		this.datasetType = datasetType;
 	}
 	
-	public String getDatasetCode() {
-		return datasetCode;
-	}
-	
-	public void setDatasetCode(String datasetCode) {
-		this.datasetCode = datasetCode;
-	}
 	
 	public String getDatasetTitle() {
 		return datasetTitle;
