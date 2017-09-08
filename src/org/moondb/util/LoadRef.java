@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.moondb.dao.CitationDao;
 import org.moondb.dao.PersonDao;
 import org.moondb.model.Citation;
+import org.moondb.parser.BibEntryParser;
 
 import java.io .IOException;
 import java.io.InputStreamReader;
