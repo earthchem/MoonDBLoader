@@ -7,7 +7,7 @@ public class XlsParser {
 	
 	//convert value of cell to String
 	public static String cellToString(Cell cell) {  
-	    Object result;
+	    Object result = null;
 	    switch (cell.getCellTypeEnum()) {
 
 	        case NUMERIC: // numeric value in Excel
