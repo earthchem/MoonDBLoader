@@ -1,12 +1,13 @@
 package org.moondb.model;
 /*
  * MoonDB(table:method)	Template(sheet:METHODS)	Java(Class:Method)	
- * 							METHOD_CODE					methodNum
- * method_code				TECHNIQUE					methodCode
+ * 							METHOD_CODE					methodCode
+ * method_code				TECHNIQUE					methodTechnique
  */
 public class Method {
 	private String methodCode;
-	private Integer methodNum;
+	private String methodTechnique;
+
 	
 	public String getMethodCode() {
 		return methodCode;
@@ -16,11 +17,11 @@ public class Method {
 		this.methodCode = methodCode;
 	}
 	
-	public Integer getMethodNum() {
-		return methodNum;
+	public String getMethodTechnique() {
+		return methodTechnique;
 	}
 	
-	public void setMethodNum(Integer methodNum) {
-		this.methodNum = methodNum;
+	public void setMethodTechnique(String methodTechnique) {
+		this.methodTechnique = methodTechnique;
 	}
 }

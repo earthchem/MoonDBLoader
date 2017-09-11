@@ -1,5 +1,8 @@
 package org.moondb.model;
 
+/*
+ * Collection of Dataset
+ */
 import java.util.List;
 
 public class Datasets {

@@ -16,7 +16,7 @@ public class DatasetParser {
 		HSSFSheet sheet = workbook.getSheet("TABLE_TITLES");
 		//Get iterator to all the rows in current sheet
 		Iterator<Row> rowIterator = sheet.iterator();
-		ArrayList<Dataset> tables = new ArrayList<Dataset>();
+		ArrayList<Dataset> datasetList = new ArrayList<Dataset>();
 		while (rowIterator.hasNext()) {
 			Dataset dataset = new Dataset();
 			Row row = rowIterator.next();
@@ -30,10 +30,10 @@ public class DatasetParser {
 				dataset.setTableNum(tableNum);
 				dataset.setDatasetTitle(tableTitle);
 				dataset.setDatasetType("Reference table");
-				tables.add(dataset);
+				datasetList.add(dataset);
 			}	
 		}
-		datasets.setDatasets(tables);
+		datasets.setDatasets(datasetList);
 		return datasets;
 	}
 }

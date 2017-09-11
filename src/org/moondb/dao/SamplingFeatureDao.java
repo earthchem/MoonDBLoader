@@ -2,7 +2,6 @@ package org.moondb.dao;
 
 import java.util.List;
 
-import org.moondb.model.Dataset;
 import org.moondb.model.SamplingFeature;
 import org.moondb.model.SamplingFeatures;
 import org.moondb.util.DatabaseUtil;
