@@ -29,4 +29,9 @@ public class UtilityDao {
 		String query = "SELECT dataset_num FROM dataset WHERE dataset_code='" + datasetCode + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
+	
+	public static Integer getSamplingFeatureNum(String samplingFeatureCode) {
+		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
 }
