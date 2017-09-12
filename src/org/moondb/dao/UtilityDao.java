@@ -18,4 +18,15 @@ public class UtilityDao {
 		String query = "SELECT method_num FROM method WHERE method_code='" + methodCode + "' AND method_type_num=3";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
+	
+	public static String getCitationCode(String moondbNum) {
+		String query = "SELECT citation_code FROM citation WHERE moondbnum='" + moondbNum + "'";
+		String citationCode = (String)DatabaseUtil.getUniqueResult(query);
+		return citationCode;
+	}
+	
+	public static Integer getDatasetNum(String datasetCode) {
+		String query = "SELECT dataset_num FROM dataset WHERE dataset_code='" + datasetCode + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
 }
