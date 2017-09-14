@@ -185,7 +185,7 @@ public class SampleData {
 	}
 	
 	public String getTemperature() {
-		return heated;
+		return temperature;
 	}
 	
 	public void setTemperature(String temperature) {
