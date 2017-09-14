@@ -3,10 +3,31 @@ package org.moondb.parser;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.moondb.model.RowCellPos;
 
 public class XlsParser {
-	//Return the last cell number of the specific row in the sheet by the ending character
+	/*
+	 * Check if data exist in specific sheet ROCKS, MINERALS and INCLUSIONS
+	 * There is no data existing if the value of cell(8,0) is -1, return false
+	 * There is data existing if the value of cell(8,0) is not -1, return true
+	 */
+	public static boolean isDataExist(HSSFWorkbook workbook,String sheetName) {
+		HSSFSheet sheet = workbook.getSheet(sheetName);
+		HSSFRow row = sheet.getRow(RowCellPos.DATA_ROW_B.getValue());
+		String value = getCellValueString(row.getCell(0));
+		if(value.equals("-1.0")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/*
+	 * Return the last cell number of the specific row in the sheet by the ending character
+	 */
 	public static Integer getLastCellNum(HSSFSheet sheet, Integer rowNum) {
 		Integer lastCellNum = null;
 		HSSFRow row = sheet.getRow(rowNum);
@@ -24,7 +45,9 @@ public class XlsParser {
 		return lastCellNum;
 	}
 	
-	//convert value of cell to String
+	/*
+	 *convert value of cell to String
+	 */
 	public static String getCellValueString(Cell cell) {  
 	    String result = null;
 	    if (cell != null) {
