@@ -10,6 +10,7 @@ public class SampleData {
 	private double[] chemicalData;
 	private String analysisComment;
 	private String calcAvge;
+	private String replicatesCount;
 	private String material;
 	private String mineral;
 	private String grain;
@@ -86,6 +87,14 @@ public class SampleData {
 	
 	public void setCalcAvge(String calcAvge) {
 		this.calcAvge = calcAvge;
+	}
+	
+	public String getReplicatesCount() {
+		return replicatesCount;
+	}
+	
+	public void setReplicatesCount(String replicatesCount) {
+		this.replicatesCount = replicatesCount;
 	}
 	
 	public String getMaterial() {
