@@ -10,6 +10,44 @@ import org.moondb.model.RowCellPos;
 
 public class XlsParser {
 	/*
+	 * Check if Ending symbol "-1" exist in the first column of sheet
+	 * if there is "-1" in the cell(?,0), return true
+	 * if there is no "-1" in the cell(?,0), return false
+	 */
+	public static boolean isRowEndingSymbolExist(HSSFWorkbook workbook,String sheetName) {
+		boolean result = false;
+		HSSFSheet sheet = workbook.getSheet(sheetName);
+		for(int i=0; i<sheet.getLastRowNum();i++) {
+			HSSFRow row = sheet.getRow(i);
+			String value = getCellValueString(row.getCell(0));
+			if(value.equals("-1.0")) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	/*
+	 * Check if Ending symbol "-1" exist in the row that contains variable name of the specific sheet ROCKS,MINERALS and INCLUSIONS
+	 * if there is "-1" in the cell(VARIABLE_ROW_B,?), return true
+	 * if there is no "-1" in the cell(VARIABLE_ROW_B,?), return false
+	 */ 
+	public static boolean isColEndingSymbolExist(HSSFWorkbook workbook,String sheetName) {
+		boolean result = false;
+		HSSFSheet sheet = workbook.getSheet(sheetName);
+		HSSFRow row = sheet.getRow(RowCellPos.VARIABLE_ROW_B.getValue());
+		for(int i=0; i<row.getLastCellNum(); i++) {
+			String value = getCellValueString(row.getCell(i));
+			if(value.equals("-1.0")) {
+				result = true;
+				break;
+			} 
+		}
+		return result;
+	}
+	
+	/*
 	 * Check if data exist in specific sheet ROCKS, MINERALS and INCLUSIONS
 	 * There is no data existing if the value of cell(8,0) is -1, return false
 	 * There is data existing if the value of cell(8,0) is not -1, return true
