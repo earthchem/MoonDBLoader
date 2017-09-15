@@ -16,14 +16,29 @@ public class XlsParser {
 	 */
 	public static boolean isRowEndingSymbolExist(HSSFWorkbook workbook,String sheetName) {
 		boolean result = false;
+		int beginRowNum;
+		int symbolCellNum;
+		switch (sheetName) {
+		case "ROCKS":
+		case "MINERALS":
+		case "INCLUSIONS":
+			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
+			symbolCellNum = 2;
+			break;
+		default:
+			symbolCellNum = 0;
+			beginRowNum = 0;
+	}
 		HSSFSheet sheet = workbook.getSheet(sheetName);
-		for(int i=0; i<=sheet.getLastRowNum();i++) {
+		for(int i=beginRowNum; i<=sheet.getLastRowNum();i++) {
 			HSSFRow row = sheet.getRow(i);
-			String value = getCellValueString(row.getCell(0));
+			String value = getCellValueString(row.getCell(symbolCellNum));
 			if (value != null) {
 				if(value.equals("-1.0") || value.equals("-1")) {
 					result = true;
 					break;
+				} else {
+					
 				}
 			}
 		}
