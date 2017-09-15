@@ -4,6 +4,43 @@ import org.moondb.util.DatabaseUtil;
 
 public class UtilityDao {
 
+	public static boolean isCitationExist(String moondbNum) {
+		String query = "SELECT COUNT(*) FROM citation WHERE moondbnum='" + moondbNum + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count == 1)
+			return true;
+		else
+			return false;
+		
+	}
+	
+	public static boolean isMethodExist(String methodCode) {
+		String query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodCode + "' AND method_type_num=3";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count == 1)
+			return true;
+		else
+			return false;	
+	}
+
+	public static boolean isVariableExist(String variableCode) {
+		String query = "SELECT COUNT(*) FROM variable WHERE variable_code='" + variableCode + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count == 1)
+			return true;
+		else
+			return false;	
+	}
+	
+	public static boolean isUnitExist(String unitAbbr) {
+		String query = "SELECT COUNT(*) FROM unit WHERE unit_abbreviation='" + unitAbbr + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count == 1)
+			return true;
+		else
+			return false;	
+	}
+	
 	public static Integer getVariableNum(String variableCode) {
 		String query = "SELECT variable_num FROM variable WHERE variable_code='" + variableCode + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
