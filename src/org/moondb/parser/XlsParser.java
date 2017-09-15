@@ -17,12 +17,14 @@ public class XlsParser {
 	public static boolean isRowEndingSymbolExist(HSSFWorkbook workbook,String sheetName) {
 		boolean result = false;
 		HSSFSheet sheet = workbook.getSheet(sheetName);
-		for(int i=0; i<sheet.getLastRowNum();i++) {
+		for(int i=0; i<=sheet.getLastRowNum();i++) {
 			HSSFRow row = sheet.getRow(i);
 			String value = getCellValueString(row.getCell(0));
-			if(value.equals("-1.0")) {
-				result = true;
-				break;
+			if (value != null) {
+				if(value.equals("-1.0") || value.equals("-1")) {
+					result = true;
+					break;
+				}
 			}
 		}
 		return result;
@@ -35,14 +37,32 @@ public class XlsParser {
 	 */ 
 	public static boolean isColEndingSymbolExist(HSSFWorkbook workbook,String sheetName) {
 		boolean result = false;
+		int beginCellNum;
+		switch (sheetName) {
+			case "ROCKS":
+				beginCellNum = RowCellPos.ROCKS_VMUCD_CELL_B.getValue();
+				break;
+			case "MINERALS":
+				beginCellNum = RowCellPos.MINERALS_VMUCD_CELL_B.getValue();
+				break;
+			case "INCLUSIONS":
+				beginCellNum = RowCellPos.INCLUSIONS_VMUCD_CELL_B.getValue();
+				break;
+			default:
+				beginCellNum = 0;
+		}
+
+
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		HSSFRow row = sheet.getRow(RowCellPos.VARIABLE_ROW_B.getValue());
-		for(int i=0; i<row.getLastCellNum(); i++) {
+		for(int i=beginCellNum; i<=row.getLastCellNum(); i++) {
 			String value = getCellValueString(row.getCell(i));
-			if(value.equals("-1.0")) {
-				result = true;
-				break;
-			} 
+			if (value != null) {
+				if(value.equals("-1.0") || value.equals("-1")) {
+					result = true;
+					break;
+				} 
+			}
 		}
 		return result;
 	}
@@ -56,14 +76,59 @@ public class XlsParser {
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		HSSFRow row = sheet.getRow(RowCellPos.DATA_ROW_B.getValue());
 		String value = getCellValueString(row.getCell(0));
-		if(value.equals("-1.0")) {
+		if(value.equals("-1.0") || value.equals("-1")) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 	
+	public static String[] getCVCodes(HSSFWorkbook workbook,String sheetName, String cvName) {
+		int rowNum = -1;
+		switch (cvName) {
+		case "Variable":
+			rowNum = RowCellPos.VARIABLE_ROW_B.getValue();
+			break;
+		case "Unit":
+			rowNum = RowCellPos.UNIT_ROW_B.getValue();
+			break;
+		default:
+			rowNum = -1;
+		}
+		
+		HSSFSheet sheet = workbook.getSheet(sheetName);
+		
+		HSSFRow row = sheet.getRow(rowNum);
+
+		int beginCellNum;
+		switch (sheetName) {
+			case "ROCKS":
+				beginCellNum = RowCellPos.ROCKS_VMUCD_CELL_B.getValue();
+				break;
+			case "MINERALS":
+				beginCellNum = RowCellPos.MINERALS_VMUCD_CELL_B.getValue();
+				break;
+			case "INCLUSIONS":
+				beginCellNum = RowCellPos.INCLUSIONS_VMUCD_CELL_B.getValue();
+				break;
+			default:
+				beginCellNum = 0;
+		}
+		
+		int lastCellNum = getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
+        int dataEntrySize = lastCellNum-beginCellNum;
+
+        String[] result = new String[dataEntrySize];
+		for(int i=beginCellNum; i<lastCellNum; i++) {
+			result[i-beginCellNum] = getCellValueString(row.getCell(i));
+		}
+		return result;
+	}
+	
+
+	
 	/*
+	 * 
 	 * Return the last cell number of the specific row in the sheet by the ending character
 	 */
 	public static Integer getLastCellNum(HSSFSheet sheet, Integer rowNum) {
@@ -71,10 +136,10 @@ public class XlsParser {
 		HSSFRow row = sheet.getRow(rowNum);
 		
 		String value;
-		for(int i=row.getFirstCellNum(); i<row.getLastCellNum(); i++) {	
+		for(int i=row.getFirstCellNum(); i<=row.getLastCellNum(); i++) {	
 			value = getCellValueString(row.getCell(i));
 			if( value != null) {
-				if(value.equals("-1.0")) {
+				if(value.equals("-1.0") || value.equals("-1")) {
 					lastCellNum = i;
 					break;
 				}
