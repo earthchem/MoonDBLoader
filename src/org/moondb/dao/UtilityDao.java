@@ -2,6 +2,8 @@ package org.moondb.dao;
 
 import java.util.List;
 
+import org.moondb.model.Action;
+import org.moondb.model.Actions;
 import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 import org.moondb.model.SamplingFeature;
@@ -36,6 +38,15 @@ public class UtilityDao {
 			return true;
 		else
 			return false;
+	}
+	
+	public static boolean isActionExist(String actionName) {
+		String query = "SELECT COUNT(*) FROM action WHERE action_name='" + actionName + "' AND action_type_num=20";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count == 1)
+			return true;
+		else
+			return false;	
 	}
 	
 	public static boolean isMethodExist(String methodCode) {
@@ -96,6 +107,11 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
+	public static Integer getActionNum(String actionName) {
+		String query = "SELECT action_num FROM action WHERE action_name='" + actionName + "' AND action_type_num=20";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
 	public static Integer getSamplingFeatureNum(String samplingFeatureCode) {
 		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
@@ -153,6 +169,25 @@ public class UtilityDao {
 
 			}			
 
+		}
+	}
+	
+	public static void saveActions(Actions actions) {
+		List<Action> actionList = actions.getActions();
+	
+		for(Action action: actionList) {
+			String actionName = action.getActionName();
+			String actionDescription = action.getActionDesctription();
+			int actionTypeNum = action.getActionTypeNum();
+			int methodNum = action.getMethodNum();
+			int datasetNum = action.getDatasetNum();
+			String query;
+			if (!isActionExist(actionName)) {
+				//save to table action
+				query = "INSERT INTO action(action_type_num,method_num,action_name,action_description,dataset_num) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName+"',"+actionDescription+",'"+datasetNum+"')";
+				DatabaseUtil.update(query);
+			}			
+	
 		}
 	}
 }
