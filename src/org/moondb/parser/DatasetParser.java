@@ -6,13 +6,18 @@ import java.util.Iterator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
+import org.moondb.dao.UtilityDao;
 import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 
 public class DatasetParser {
-	public static Datasets parseDataset(HSSFWorkbook workbook) {
+	public static Datasets parseDataset(HSSFWorkbook workbook, String moondbNum) {
 		
 		Datasets datasets = new Datasets();
+		
+		String citationCode = UtilityDao.getCitationCode(moondbNum);
+        int citationNum = UtilityDao.getCitationNum(moondbNum);
+        
 		HSSFSheet sheet = workbook.getSheet("TABLE_TITLES");
 		//Get iterator to all the rows in current sheet
 		Iterator<Row> rowIterator = sheet.iterator();
@@ -22,14 +27,17 @@ public class DatasetParser {
 			Row row = rowIterator.next();
 			//data starting from row 2
 			if(row.getRowNum()>0) {
-				String tableNum = XlsParser.cellToString(row.getCell(0)).trim();
-				if (tableNum.equals("-1.0")) {    //data ending at the row
+				String tableNum = XlsParser.getCellValueString(row.getCell(0));
+				if (tableNum.equals("-1.0") || tableNum.equals("-1")) {    //data ending at the row
 					break;
 				}
-				String tableTitle = XlsParser.cellToString(row.getCell(1)).trim();
+				String datasetCode = citationCode + "#" + tableNum;  //create unique dataset_code by combing citation_code and number of TABLE_IN_REF
+				String tableTitle = XlsParser.getCellValueString(row.getCell(1));
 				dataset.setTableNum(tableNum);
-				dataset.setDatasetTitle(tableTitle);
+				dataset.setDatasetTitle(tableTitle.toUpperCase());
 				dataset.setDatasetType("Reference table");
+				dataset.setDatasetCode(datasetCode.toUpperCase());
+				dataset.setCitationNum(citationNum);
 				datasetList.add(dataset);
 			}	
 		}
