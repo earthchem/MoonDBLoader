@@ -5,12 +5,15 @@ package org.moondb.model;
  * sampling_feature_code			SAMPLE NAME					samplingFeatureCode
  * sampling_feature_description		SAMPLE_COMMENT				samplingFeatureComment
  * sampling_feature_type_num									samplingFeatureTypeNum
+ * 									STATION_NAME				parentSamplingFeatureCode
  */
 
 public class SamplingFeature {
 	private String samplingFeatureCode;
 	private String samplingFeatureComment;
 	private Integer samplingFeatureTypeNum;
+	private String parentSamplingFeatureCode;
+	
 	
 	public String getSamplingFeatureCode() {
 		return samplingFeatureCode;
@@ -34,5 +37,13 @@ public class SamplingFeature {
 	
 	public void setSamplingFeatureTypeNum(Integer samplingFeatureTypeNum) {
 		this.samplingFeatureTypeNum = samplingFeatureTypeNum;
+	}
+	
+	public String getParentSamplingFeatureCode() {
+		return parentSamplingFeatureCode;
+	}
+	
+	public void setParentSamplingFeatrureCode(String parentSamplingFeatureCode) {
+		this.parentSamplingFeatureCode = parentSamplingFeatureCode;
 	}
 }
