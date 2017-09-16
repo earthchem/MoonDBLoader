@@ -1,5 +1,9 @@
 package org.moondb.dao;
 
+import java.util.List;
+
+import org.moondb.model.Dataset;
+import org.moondb.model.Datasets;
 import org.moondb.util.DatabaseUtil;
 
 public class UtilityDao {
@@ -7,11 +11,20 @@ public class UtilityDao {
 	public static boolean isCitationExist(String moondbNum) {
 		String query = "SELECT COUNT(*) FROM citation WHERE moondbnum='" + moondbNum + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
-		if (count == 1)
+		if (count > 0)
 			return true;
 		else
 			return false;
 		
+	}
+	
+	public static boolean isDatasetExist(String datasetCode) {
+		String query = "SELECT COUNT(*) FROM dataset WHERE dataset_code='" + datasetCode + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count > 0)
+			return true;
+		else
+			return false;
 	}
 	
 	public static boolean isMethodExist(String methodCode) {
@@ -62,6 +75,11 @@ public class UtilityDao {
 		return citationCode;
 	}
 	
+	public static Integer getCitationNum(String moondbNum) {
+		String query = "SELECT citation_num FROM citation WHERE moondbnum='" + moondbNum + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
 	public static Integer getDatasetNum(String datasetCode) {
 		String query = "SELECT dataset_num FROM dataset WHERE dataset_code='" + datasetCode + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
@@ -70,5 +88,31 @@ public class UtilityDao {
 	public static Integer getSamplingFeatureNum(String samplingFeatureCode) {
 		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+
+	/*
+	 * Save Data to MoonDB
+	 */
+	public static void saveDatasets(Datasets datasets) {
+		List<Dataset> dss = datasets.getDatasets();
+	
+		for(Dataset ds: dss) {
+			String datasetCode = ds.getDatasetCode();
+			String datasetType = ds.getDatasetType();
+			String datasetTitle = ds.getDatasetTitle();
+			int citationNum = ds.getCitationNum();
+			String query;
+			if (!isDatasetExist(datasetCode)) {
+				//save to table dataset
+				query = "INSERT INTO dataset(dataset_type,dataset_code,dataset_title) VALUES('"+datasetType+"','"+datasetCode+"','"+datasetTitle+"')";
+				DatabaseUtil.update(query);
+				Integer datasetNum = getDatasetNum(datasetCode);
+				Integer relationshipTypeNum = 3;
+				//save to table citation_dataset
+				query = "INSERT INTO citation_dataset(citation_num,dataset_num,relationship_type_num) VALUES('"+citationNum+"',"+datasetNum+",'"+relationshipTypeNum+"')";
+				DatabaseUtil.update(query);
+			}			
+	
+		}
 	}
 }
