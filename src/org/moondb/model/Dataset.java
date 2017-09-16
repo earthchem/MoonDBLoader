@@ -9,6 +9,8 @@ public class Dataset {
 	private String datasetType;
 	private String datasetTitle;
 	private String tableNum;  //used for creating dataset_code
+	private String datasetCode;
+	private int citationNum;
 	
 	public String getDatasetType() {
 		return datasetType;
@@ -33,5 +35,21 @@ public class Dataset {
 	
 	public void setTableNum(String tableNum) {
 		this.tableNum = tableNum;
+	}
+	
+	public String getDatasetCode() {
+		return datasetCode;
+	}
+	
+	public void setDatasetCode(String datasetCode) {
+		this.datasetCode = datasetCode;
+	}
+	
+	public int getCitationNum() {
+		return citationNum;
+	}
+	
+	public void setCitationNum(int citationNum) {
+		this.citationNum = citationNum;
 	}
 }
