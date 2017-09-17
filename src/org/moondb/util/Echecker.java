@@ -39,7 +39,8 @@ public class Echecker {
 				}
 			} else {
 				if(UtilityDao.isVariableExist(variables[j])) {
-	        		content = "Variable <" + variables[j] +"> check:	Passed";
+					int varNum = UtilityDao.getVariableNum(variables[j]);
+	        		content = "Variable <" + variables[j] +"("+varNum+")" +"> check:	Passed";
 	        		writeLog(bw, content);
 				} else {
 	        		content = "Variable <" + variables[j] +"> check:	Failed";
