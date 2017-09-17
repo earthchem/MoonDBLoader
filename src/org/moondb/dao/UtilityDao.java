@@ -85,9 +85,38 @@ public class UtilityDao {
 			return false;	
 	}
 	
+	public static long getCountOfVariable(String variableCode) {
+		String query = "SELECT COUNT(*) from variable where variable_code='" + variableCode + "'";
+		return (long)DatabaseUtil.getUniqueResult(query);
+	}
+	
 	public static Integer getVariableNum(String variableCode) {
-		String query = "SELECT variable_num FROM variable WHERE variable_code='" + variableCode + "'";
-		return (Integer)DatabaseUtil.getUniqueResult(query);
+		if (getCountOfVariable(variableCode) > 1) {
+			String query = "SELECT variable_num, variable_type_num FROM variable WHERE variable_code='" + variableCode + "'";
+			List<Object[]> records = DatabaseUtil.getRecords(query);
+			Integer varNum = null;
+			for(Object[] record: records) {
+				switch ((int)record[1]) {
+				case 9:                          //MAJ
+					varNum = (int)record[0];
+					break;
+				case 6:                          //EM
+					varNum = (int)record[0];
+					break;
+				case 7:                          //IR
+					varNum = (int)record[0];
+					break;
+				case 13:                         //US
+					varNum = (int)record[0];
+					break;
+				}
+			}
+			return varNum;
+		} else {
+			String query = "SELECT variable_num FROM variable WHERE variable_code='" + variableCode + "'";
+			return (Integer)DatabaseUtil.getUniqueResult(query);	
+		}
+
 	}
 	
 	public static Integer getVariableNum(String variableCode, int variableTypeNum) {
