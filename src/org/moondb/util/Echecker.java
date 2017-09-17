@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.moondb.dao.UtilityDao;
 import org.moondb.model.Method;
-import org.moondb.model.Methods;
 import org.moondb.parser.MethodParser;
 import org.moondb.parser.XlsParser;
 
@@ -20,6 +19,35 @@ public class Echecker {
 	private static void writeLog(BufferedWriter bw, String content) throws IOException {
 		bw.write(content);
 		bw.newLine();
+	}
+	
+	private static void variableCheck(HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
+		String content;
+		String[] variables = XlsParser.getCVCodes(workbook, sheetName, "Variable");
+		for(int j=0; j<variables.length; j++) {
+			if(UtilityDao.isVariableExist(variables[j])) {
+        		content = "Variable <" + variables[j] +"> check:	Passed";
+        		writeLog(bw, content);
+			} else {
+        		content = "Variable <" + variables[j] +"> check:	Failed";
+        		writeLog(bw, content);				        				
+			}
+		}
+	}
+	
+	private static void unitCheck(HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
+		String content;
+		String[] units = XlsParser.getCVCodes(workbook, sheetName, "Unit");
+		for(int j=0; j<units.length; j++) {
+			if(UtilityDao.isUnitExist(units[j])) {
+        		content = "Unit <" + units[j] +"> check:	Passed";
+        		writeLog(bw, content);
+			} else {
+        		content = "Unit <" + units[j] +"> check:	Failed";
+        		writeLog(bw, content);				        				
+			}
+		}
+			
 	}
 
 	public static void main(String[] args) throws IOException{
@@ -117,28 +145,10 @@ public class Echecker {
 				        		writeLog(bw, content);	
 				        		
 				        		//Variable code checking
-				        		String[] variables = XlsParser.getCVCodes(workbook, "ROCKS", "Variable");
-				        		for(int j=0; j<variables.length; j++) {
-				        			if(UtilityDao.isVariableExist(variables[j])) {
-						        		content = "Variable <" + variables[j] +"> check:	Passed";
-						        		writeLog(bw, content);
-				        			} else {
-						        		content = "Variable <" + variables[j] +"> check:	Failed";
-						        		writeLog(bw, content);				        				
-				        			}
-				        		}
+				        		variableCheck(workbook,"ROCKS",bw);
 				        		
 				        		//Unit code checking
-				        		String[] units = XlsParser.getCVCodes(workbook, "ROCKS", "Unit");
-				        		for(int j=0; j<units.length; j++) {
-				        			if(UtilityDao.isUnitExist(units[j])) {
-						        		content = "Unit <" + units[j] +"> check:	Passed";
-						        		writeLog(bw, content);
-				        			} else {
-						        		content = "Unit <" + units[j] +"> check:	Failed";
-						        		writeLog(bw, content);				        				
-				        			}
-				        		}
+				        		unitCheck(workbook,"ROCKS",bw);
 		        			} else {
 				        		content = "Col ending Symbol check(ROCKS):   Failed";
 				        		writeLog(bw, content);		        				
@@ -159,7 +169,13 @@ public class Echecker {
 		        		if(XlsParser.isDataExist(workbook, "MINERALS")) {
 		        			if(XlsParser.isColEndingSymbolExist(workbook, "MINERALS")) {
 				        		content = "Col ending Symbol check(MINERALS):   Passed";
-				        		writeLog(bw, content);		        				
+				        		writeLog(bw, content);		    
+				        		//Variable code checking
+				        		variableCheck(workbook,"MINERALS",bw);
+				        		
+				        		//Unit code checking
+				        		unitCheck(workbook,"MINERALS",bw);
+		        					        		
 		        			} else {
 				        		content = "Col ending Symbol check(MINERALS):   Failed";
 				        		writeLog(bw, content);		        				
@@ -180,7 +196,12 @@ public class Echecker {
 		        		if(XlsParser.isDataExist(workbook, "INCLUSIONS")) {
 		        			if(XlsParser.isColEndingSymbolExist(workbook, "INCLUSIONS")) {
 				        		content = "Col ending Symbol check(INCLUSIONS):   Passed";
-				        		writeLog(bw, content);		        				
+				        		writeLog(bw, content);		
+				        		//Variable code checking
+				        		variableCheck(workbook,"INCLUSIONS",bw);
+				        		
+				        		//Unit code checking
+				        		unitCheck(workbook,"INCLUSIONS",bw);        		
 		        			} else {
 				        		content = "Col ending Symbol check(INCLUSIONS):   Failed";
 				        		writeLog(bw, content);		        				
