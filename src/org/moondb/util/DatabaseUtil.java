@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -40,6 +41,72 @@ public class DatabaseUtil {
        // System.out.println("CONNECTION: " + connection);
  
         return connection;
+    }
+    
+    public static List<Object[]> getRecords(String query) {
+
+    	List<Object[]> records=new ArrayList<Object[]>();
+
+    	Connection con = null;
+
+    	Statement stmt = null;
+
+    	ResultSet rs = null;
+
+    	
+
+    	try {
+
+    		con = getConnection();
+
+    		stmt = con.createStatement();
+
+            rs = stmt.executeQuery(query);
+
+            int cols = rs.getMetaData().getColumnCount();
+
+            while(rs.next()){
+
+            	 Object[] arr = new Object[cols]; 
+
+            	 for(int i=0; i<cols; i++){ 
+
+            		 arr[i] = rs.getObject(i+1); 
+
+            	 } 
+
+            	 records.add(arr); }
+
+    	} catch (SQLException e) { 
+
+       	 	System.err.println(e);
+
+        } catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+
+        	try {
+
+        		if(rs != null) rs.close();
+
+        		if(stmt != null) stmt.close();
+
+        		if(con != null) con.close();   
+
+        	} catch (SQLException e) {
+
+        		System.err.println(e);
+
+        	}
+
+        }
+
+    	return records;
+
     }
     
     public static Object getUniqueResult(String query) {
