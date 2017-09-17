@@ -61,7 +61,16 @@ public class UtilityDao {
 	public static boolean isVariableExist(String variableCode) {
 		String query = "SELECT COUNT(*) FROM variable WHERE variable_code='" + variableCode + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
-		if (count == 1)
+		if (count > 0)
+			return true;
+		else
+			return false;	
+	}
+	
+	public static boolean isVariableExist(String variableCode, int variableTypeNum) {
+		String query = "SELECT COUNT(*) FROM variable WHERE variable_code='" + variableCode + "' AND variable_type_num='"+variableTypeNum+"'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count >0)
 			return true;
 		else
 			return false;	
@@ -78,6 +87,16 @@ public class UtilityDao {
 	
 	public static Integer getVariableNum(String variableCode) {
 		String query = "SELECT variable_num FROM variable WHERE variable_code='" + variableCode + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	public static Integer getVariableNum(String variableCode, int variableTypeNum) {
+		String query = "SELECT variable_num FROM variable WHERE variable_code='" + variableCode + "' AND variable_type_num='"+variableTypeNum +"'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	public static Integer getVariableTypeNum(String variableTypeCode) {
+		String query = "SELECT variable_type_num FROM variable_type WHERE variable_type_code='" + variableTypeCode + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	

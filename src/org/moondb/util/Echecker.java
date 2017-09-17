@@ -25,13 +25,28 @@ public class Echecker {
 		String content;
 		String[] variables = XlsParser.getCVCodes(workbook, sheetName, "Variable");
 		for(int j=0; j<variables.length; j++) {
-			if(UtilityDao.isVariableExist(variables[j])) {
-        		content = "Variable <" + variables[j] +"> check:	Passed";
-        		writeLog(bw, content);
+			if(variables[j].contains("[")) {
+				String varCode = variables[j].substring(0, variables[j].indexOf('['));
+				String varType = variables[j].substring(variables[j].indexOf('[')+1,variables[j].indexOf(']'));
+				int varTypeNum = UtilityDao.getVariableTypeNum(varType);
+				
+				if(UtilityDao.isVariableExist(varCode, varTypeNum)) {
+					content = "Variable <" + variables[j] +"> check:	Passed";
+	        		writeLog(bw, content);
+				} else {
+	        		content = "Variable <" + variables[j] +"> check:	Failed";
+	        		writeLog(bw, content);
+				}
 			} else {
-        		content = "Variable <" + variables[j] +"> check:	Failed";
-        		writeLog(bw, content);				        				
+				if(UtilityDao.isVariableExist(variables[j])) {
+	        		content = "Variable <" + variables[j] +"> check:	Passed";
+	        		writeLog(bw, content);
+				} else {
+	        		content = "Variable <" + variables[j] +"> check:	Failed";
+	        		writeLog(bw, content);				        				
+				}				
 			}
+
 		}
 	}
 	
