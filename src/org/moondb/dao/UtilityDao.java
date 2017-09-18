@@ -31,14 +31,15 @@ public class UtilityDao {
 			return false;
 	}
 	
-	public static boolean isSamplingFeatureExist(String samplingFeatureCode) {
-		String query = "SELECT COUNT(*) FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "'";
+	public static boolean isSamplingFeatureExist(String samplingFeatureCode, int samplingFeatureTypeNum) {
+		String query = "SELECT COUNT(*) FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "' AND sampling_feature_type_num='" + samplingFeatureTypeNum + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
 			return true;
 		else
 			return false;
 	}
+	
 	
 	public static boolean isActionExist(String actionName) {
 		String query = "SELECT COUNT(*) FROM action WHERE action_name='" + actionName + "' AND action_type_num=20";
@@ -160,8 +161,8 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
-	public static Integer getSamplingFeatureNum(String samplingFeatureCode) {
-		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "'";
+	public static Integer getSamplingFeatureNum(String samplingFeatureCode, int samplingFeatureTypeNum) {
+		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "' AND sampling_feature_type_num='" + samplingFeatureTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 
@@ -201,14 +202,14 @@ public class UtilityDao {
 			Integer sfTypeNum = sf.getSamplingFeatureTypeNum();
 			
 			String query;
-			if (!isSamplingFeatureExist(sfCode)) {
+			if (!isSamplingFeatureExist(sfCode, sfTypeNum)) {
 				//save to table sampling_feature
 				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfComment+"')";
 				DatabaseUtil.update(query);
 				
 				if(sfParentCode != null) {
-					Integer sfNum = getSamplingFeatureNum(sfCode);
-					Integer sfParentNum = getSamplingFeatureNum(sfParentCode);
+					Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
+					Integer sfParentNum = getSamplingFeatureNum(sfParentCode,1); //Parent sampling feature must be specimen
 					Integer relationshipTypeNum = 9;  //isSubSampleOf
 					//save to table related_feature
 					query = "INSERT INTO related_feature(sampling_feature_num,related_sampling_feature_num,relationship_type_num) VALUES('"+sfNum+"',"+sfParentNum+",'"+relationshipTypeNum+"')";
