@@ -198,13 +198,14 @@ public class UtilityDao {
 		for(SamplingFeature sf: sfs) {
 			String sfCode = sf.getSamplingFeatureCode();
 			String sfParentCode = sf.getParentSamplingFeatureCode();
+			String sfName = sf.getSamplingFeatureName();
 			String sfComment = sf.getSamplingFeatureComment();
 			Integer sfTypeNum = sf.getSamplingFeatureTypeNum();
 			
 			String query;
 			if (!isSamplingFeatureExist(sfCode, sfTypeNum)) {
 				//save to table sampling_feature
-				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfComment+"')";
+				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"','"+sfComment+"')";
 				DatabaseUtil.update(query);
 				
 				if(sfParentCode != null) {
