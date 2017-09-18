@@ -53,7 +53,17 @@ public enum RowCellPos {
 	/*
 	 * Beginning row number of data in sheet ROCKS, MINERALS and INCLUSIONS
 	 */
-	DATA_ROW_B(8);                     
+	DATA_ROW_B(8),         
+	
+	/*
+	 * Column number of SPOT_ID in sheet MINERALS
+	 */
+	MINERALS_SPOTID_COL_NUM(4),
+	
+	/*
+	 * Column number of SPOT_ID in sheet INCLUSIONS
+	 */
+	INCLUSIONS_SPOTID_COL_NUM(3);
 
 	private final int value;
 	
