@@ -10,9 +10,11 @@ package org.moondb.model;
 
 public class SamplingFeature {
 	private String samplingFeatureCode;
+	private String samplingFeatureName;
 	private String samplingFeatureComment;
 	private Integer samplingFeatureTypeNum;
 	private String parentSamplingFeatureCode;
+
 	
 	
 	public String getSamplingFeatureCode() {
@@ -21,6 +23,14 @@ public class SamplingFeature {
 	
 	public void setSamplingFeatureCode(String samplingFeatureCode) {
 		this.samplingFeatureCode = samplingFeatureCode;
+	}
+	
+	public String getSamplingFeatureName() {
+		return samplingFeatureName;
+	}
+	
+	public void setSamplingFeatureName(String samplingFeatureName) {
+		this.samplingFeatureName = samplingFeatureName;
 	}
 	
 	public String getSamplingFeatureComment() {

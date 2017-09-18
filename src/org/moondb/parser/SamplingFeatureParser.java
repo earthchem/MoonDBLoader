@@ -31,6 +31,7 @@ public class SamplingFeatureParser {
 				String samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));
 
 				samplingFeature.setSamplingFeatureCode(samplingFeatureCode);
+				samplingFeature.setSamplingFeatureName(samplingFeatureCode); //For Specimen sampling feature, same as samplingFeatureCode
 				samplingFeature.setSamplingFeatureComment(samplingFeatureComment);
 				if(parentSamplingFeatureCode != null && parentSamplingFeatureCode.endsWith(".0")) {
 					parentSamplingFeatureCode = parentSamplingFeatureCode.replaceAll(".0", ",0");
