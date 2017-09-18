@@ -6,29 +6,34 @@ import java.util.Iterator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
+import org.moondb.model.MoonDBType;
 import org.moondb.model.RowCellPos;
 import org.moondb.model.SamplingFeature;
 import org.moondb.model.SamplingFeatures;
 
+/*
+ * Loading sampling feature info to class SamplingFeature from sheet SAMPLES, ROCKS, MINERALS and INCLUSIONS if data exists
+ * Sheet "SAMPLES" holds specimen sampling features, they are parent sampling features of other analyzing sampling features
+ * RockAnalysis sampling features are extracted from Sample Data part of the Sheet "ROCKS"
+ * MineralAnalysis sampling features are extracted from Sample Data part of the sheet "MINERALS"
+ * InclusionAnalysis sampling features are extracted from Sample Data part of the sheet "INCLUSIONS"
+ * 
+ * Update on 9/18/2017
+ */
+
 public class SamplingFeatureParser {
 	
-	private static String formatSamplingFeatureName (String samplingFeatureName) {
-		/*
-		 * if cell type is numeric, the return value will be formatted as numeric, like value 1000 will be returned as 1000.0
-		 * need to be converted to 1000,0
-		 */
-		if(samplingFeatureName.endsWith(".0")) {          
-			samplingFeatureName = samplingFeatureName.replaceAll(".0", ",0");
+	/*
+	 * if cell type is numeric, the return value will be formatted as numeric, like value 1000 will be returned as 1000.0
+	 * ".0" need to be removed
+	 */
+	private static String formatString (String str) {
+
+		if(str != null && str.endsWith(".0")) {          
+			str = str.replaceAll(".0", "").trim();
 		} 
-		/*
-		 * if cell type is string, the return value will be formatted as string, like value 1000 will be returned as 1000
-		 * need to be converted to 1000,0
-		 */
-		else if (!samplingFeatureName.contains(",")) {  
-			samplingFeatureName = samplingFeatureName + ",0";		
-		}
 		
-		return samplingFeatureName;
+		return str;
 	}
 	
 	public static SamplingFeatures parseSamplingFeature (HSSFWorkbook workbook, String sheetName, String moondbNum) {
@@ -39,24 +44,28 @@ public class SamplingFeatureParser {
 		Iterator<Row> rowIterator = sheet.iterator();
 		ArrayList<SamplingFeature> sfList = new ArrayList<SamplingFeature>();
 		
-		int sfTypeNum = 0;
-		int beginRowNum = 0;
+		int sfTypeNum = -1;
+		int beginRowNum = -1;
+		int spotIDCellNum = -1;
+		
 		switch(sheetName) {
 		case "SAMPLES":
-			sfTypeNum = 1;  //Specimen sampling feature
+			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue(); //Specimen sampling feature
 			beginRowNum = RowCellPos.SAMPLES_ROW_B.getValue();
 			break;
 		case "ROCKS":
-			sfTypeNum = 2;  //RockAnalysis sampling feature
+			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_ROCKANALYSIS.getValue();  //RockAnalysis sampling feature
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
 			break;
 		case "MINERALS":
-			sfTypeNum = 3;  //MineralAnalysis sampling feature
+			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_MINERALANALYSIS.getValue();  //MineralAnalysis sampling feature
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
+			spotIDCellNum = RowCellPos.MINERALS_SPOTID_COL_NUM.getValue();
 			break;
 		case "INCLUSIONS":
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
-			sfTypeNum = 4;  //InclusionAnalysis sampling feature
+			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_INCLUSIONANALYSIS.getValue();  //InclusionAnalysis sampling feature
+			spotIDCellNum = RowCellPos.INCLUSIONS_SPOTID_COL_NUM.getValue();
 			break;
 		}
 		while (rowIterator.hasNext()) {
@@ -75,49 +84,35 @@ public class SamplingFeatureParser {
 				String parentSamplingFeatureCode = null;
 				
 				if(sheetName == "SAMPLES") {
-					samplingFeatureName = XlsParser.getCellValueString(row.getCell(1));
-					samplingFeatureName = formatSamplingFeatureName(samplingFeatureName);
+					samplingFeatureName = formatString(XlsParser.getCellValueString(row.getCell(1))); //corresponding to SAMPLE NAME in sheet SAMPLES
 					
 					//keep samplingFeatureCode be same as samplingFeatureName for specimen sampling feature
 					samplingFeatureCode = samplingFeatureName;
+				
+					parentSamplingFeatureCode = formatString(XlsParser.getCellValueString(row.getCell(2)));  //corresponding STATION_NAME in sheet SAMPLES
 					
-					//sampling feature is root sampling feature, no parent sampling feature
-					if(samplingFeatureCode.endsWith(",0")) {
+					//no parent sampling feature if the sampling feature is root sampling feature 
+					if(samplingFeatureCode.equals(parentSamplingFeatureCode)) {
 						parentSamplingFeatureCode = null;
 					} 
-					//sampling feature is not root sampling feature
-					else {
-						parentSamplingFeatureCode = samplingFeatureCode.substring(0, samplingFeatureCode.indexOf(',')) + ",0";
-					}	
-					
+						
 					samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	
 					
-				} else if(sheetName == "ROCKS"){
-					samplingFeatureName = formatSamplingFeatureName(XlsParser.getCellValueString(row.getCell(2)));
+				} else {
+					samplingFeatureName = formatString(XlsParser.getCellValueString(row.getCell(2))); //corresponding to SAMPLE NAME in sheet ROCKS, MINERALS and INCLUSIONS
 					samplingFeatureCode = samplingFeatureName + "#" + resultNum + "#" + moondbNum;
 					parentSamplingFeatureCode = samplingFeatureName;
-					samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	
+					if (sheetName != "INCLUSIONS") {
+						samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	//corresponding to ANALYSIS COMMENT in sheet ROCKS and MINERALS 
+					}
 					
-				} else if (sheetName == "MINERALS") {
-					samplingFeatureName = formatSamplingFeatureName(XlsParser.getCellValueString(row.getCell(2)));
-					samplingFeatureCode = samplingFeatureName + "#" + resultNum + "#" + moondbNum;
-					parentSamplingFeatureCode = samplingFeatureName;
-					String spotID = XlsParser.getCellValueString(row.getCell(4));
-					if(spotID.endsWith(".0"))
-						spotID = spotID.replaceAll(".0", "").trim();
-					samplingFeatureName = samplingFeatureName + "#" + spotID;
-					samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));						
-					
-				} else if (sheetName == "INCLUSIONS") {
-					samplingFeatureName = formatSamplingFeatureName(XlsParser.getCellValueString(row.getCell(2)));
-					samplingFeatureCode = samplingFeatureName + "#" + resultNum + "#" + moondbNum;
-					parentSamplingFeatureCode = samplingFeatureName;
-					String spotID = XlsParser.getCellValueString(row.getCell(3));
-					if(spotID.endsWith(".0"))
-						spotID = spotID.replaceAll(".0", "").trim();
-					samplingFeatureName = samplingFeatureName + "#" + spotID;
-					samplingFeatureComment = null;				
-				}
+					if (sheetName != "ROCKS") {
+						String spotID = formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+						if(spotID != null) {
+							samplingFeatureName = samplingFeatureName + "#" + spotID;						
+						}						
+					}
+				} 
 
 
 				samplingFeature.setSamplingFeatureCode(samplingFeatureCode);
