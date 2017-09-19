@@ -5,7 +5,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.moondb.model.RowCellPos;
 
 public class XlsParser {
@@ -161,6 +160,19 @@ public class XlsParser {
 			}
 		}
 		return lastCellNum;
+	}
+	
+	/*
+	 * if cell type is numeric, the return value will be formatted as numeric, like value 1000 will be returned as 1000.0
+	 * ".0" need to be removed
+	 */
+	public static String formatString (String str) {
+
+		if(str != null && str.endsWith(".0")) {          
+			str = str.replaceAll(".0", "").trim();
+		} 
+		
+		return str;
 	}
 	
 	/*
