@@ -17,7 +17,7 @@ public class SampleResult {
 	private String mineral;
 	private String grain;
 	private String rimCore;
-	private String minerialSize;
+	private String mineralSize;
 	private String spotId;
 	private String inclusionType;
 	private String inclusionMineral;
@@ -132,12 +132,12 @@ public class SampleResult {
 		this.rimCore = rimCore;
 	}
 	
-	public String getMinerialSize() {
-		return minerialSize;
+	public String getMineralSize() {
+		return mineralSize;
 	}
 	
-	public void setMinerialSize(String minerialSize) {
-		this.minerialSize = minerialSize;
+	public void setMineralSize(String mineralSize) {
+		this.mineralSize = mineralSize;
 	}
 	
 	public String getSpotId() {
