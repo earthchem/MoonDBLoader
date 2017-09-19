@@ -23,15 +23,18 @@ public class MethodParser {
 			Row row = rowIterator.next();
 			//data starting from row 2
 			if(row.getRowNum()>0) {
-				String methodNum = XlsParser.getCellValueString(row.getCell(0));  //corresponding to METHOD_NUM in sheet METHODS
-				if (methodNum.equals("-1.0") || methodNum.equals("-1")) {    //data ending at the row
+				String methodNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));  //corresponding to METHOD_NUM in sheet METHODS
+				if (methodNum.equals("-1")) {    //data ending at the row
 					break;
 				}
-				String methodCode = XlsParser.getCellValueString(row.getCell(1)); //corresponding to METHOD_CODE in sheet METHODS
-				String methodTechnique = XlsParser.getCellValueString(row.getCell(2)); //corresponding to TECHNIQUE in sheet METHODS
+				String methodCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1))); //corresponding to METHOD_CODE in sheet METHODS
+				String methodTech = XlsParser.getCellValueString(row.getCell(2)); //corresponding to TECHNIQUE in sheet METHODS
+				Integer methodLabNum = Integer.parseInt(XlsParser.formatString(XlsParser.getCellValueString(row.getCell(3))));  //corresponding to LAB in sheet METHODS
 				String methodComment = XlsParser.getCellValueString(row.getCell(4));   //corresponding to METHOD_COMMENT in sheet METHODS
+				
 				method.setMethodCode(methodCode);
-				method.setMethodTechnique(methodTechnique);
+				method.setMethodTechnique(methodTech);
+				method.setMethodLabNum(methodLabNum);
 				method.setMethodComment(methodComment);
 				methodList.add(method);
 			}	

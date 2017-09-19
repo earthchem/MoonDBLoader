@@ -7,6 +7,7 @@ package org.moondb.model;
 public class Method {
 	private String methodCode;
 	private String methodTechnique;
+	private Integer methodLabNum;
 	private String methodComment;
 
 	
@@ -24,6 +25,14 @@ public class Method {
 	
 	public void setMethodTechnique(String methodTechnique) {
 		this.methodTechnique = methodTechnique;
+	}
+	
+	public Integer getMethodLabNum() {
+		return methodLabNum;
+	}
+	
+	public void setMethodLabNum(Integer methodLab) {
+		this.methodLabNum = methodLab;
 	}
 	
 	public String getMethodComment() {
