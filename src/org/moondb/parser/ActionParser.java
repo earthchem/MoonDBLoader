@@ -10,6 +10,7 @@ import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 import org.moondb.model.Method;
 import org.moondb.model.Methods;
+import org.moondb.model.MoonDBType;
 
 public class ActionParser {
 	public static Actions parseAction(Datasets datasets, Methods methods) {
@@ -23,14 +24,16 @@ public class ActionParser {
 				Action action = new Action();
 				String datasetCode = ds.getDatasetCode();
 				int datasetNum = UtilityDao.getDatasetNum(datasetCode);
-				String methodCode = method.getMethodTechnique();
-				int methodNum = UtilityDao.getMethodNum(methodCode);
-				String actionName = datasetCode + " : " + methodCode;
+				String methodTech = method.getMethodTechnique();
+				Integer methodLabNum = method.getMethodLabNum();
+				String methodComment = method.getMethodComment();
+				int methodNum = UtilityDao.getMethodNum(methodTech,methodLabNum,methodComment);
+				String actionName = datasetCode + " : " + methodTech;
 				String actionDescription = method.getMethodComment();
 				
 				action.setActionDescription(actionDescription);
 				action.setActionName(actionName);
-				action.setActionTypeNum(20); //20: Specimen analysis
+				action.setActionTypeNum(MoonDBType.ACTION_TYPE_SPECIMEN_ANALYSIS.getValue()); //20: Specimen analysis
 				action.setDatasetNum(datasetNum);
 				action.setMethodNum(methodNum);
 				

@@ -27,8 +27,8 @@ public class DatasetParser {
 			Row row = rowIterator.next();
 			//data starting from row 2
 			if(row.getRowNum()>0) {
-				String tableNum = XlsParser.getCellValueString(row.getCell(0));
-				if (tableNum.equals("-1.0") || tableNum.equals("-1")) {    //data ending at the row
+				String tableNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
+				if (tableNum.equals("-1")) {    //data ending at the row
 					break;
 				}
 				String datasetCode = citationCode + "#" + tableNum;  //create unique dataset_code by combing citation_code and number of TABLE_IN_REF
