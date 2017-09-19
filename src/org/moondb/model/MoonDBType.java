@@ -2,7 +2,15 @@ package org.moondb.model;
 
 public enum MoonDBType {
 	
-	
+	/*
+	 * Type of action, value from table action_type of moonDB
+	 */
+	ACTION_TYPE_SPECIMEN_ANALYSIS(20),
+
+	/*
+	 * Type of variable, value from table variable_type of moonDB
+	 */
+	VARIABLE_TYPE_MV(18),
 	/*
 	 * Type of sampling features, value from table sampling_feature_type of moonDB
 	 */
