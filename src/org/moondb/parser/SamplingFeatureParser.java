@@ -23,18 +23,6 @@ import org.moondb.model.SamplingFeatures;
 
 public class SamplingFeatureParser {
 	
-	/*
-	 * if cell type is numeric, the return value will be formatted as numeric, like value 1000 will be returned as 1000.0
-	 * ".0" need to be removed
-	 */
-	private static String formatString (String str) {
-
-		if(str != null && str.endsWith(".0")) {          
-			str = str.replaceAll(".0", "").trim();
-		} 
-		
-		return str;
-	}
 	
 	public static SamplingFeatures parseSamplingFeature (HSSFWorkbook workbook, String sheetName, String moondbNum) {
 		
@@ -73,8 +61,8 @@ public class SamplingFeatureParser {
 			Row row = rowIterator.next();
 
 			if(row.getRowNum()>= beginRowNum) {
-				String resultNum = XlsParser.getCellValueString(row.getCell(0));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
-				if (resultNum.equals("-1.0") || resultNum.equals("-1")) {    //data ending at the row
+				String resultNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
+				if (resultNum.equals("-1")) {    //data ending at the row
 					break;
 				}
 				
@@ -84,12 +72,12 @@ public class SamplingFeatureParser {
 				String parentSamplingFeatureCode = null;
 				
 				if(sheetName == "SAMPLES") {
-					samplingFeatureName = formatString(XlsParser.getCellValueString(row.getCell(1))); //corresponding to SAMPLE NAME in sheet SAMPLES
+					samplingFeatureName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1))); //corresponding to SAMPLE NAME in sheet SAMPLES
 					
 					//keep samplingFeatureCode be same as samplingFeatureName for specimen sampling feature
 					samplingFeatureCode = samplingFeatureName;
 				
-					parentSamplingFeatureCode = formatString(XlsParser.getCellValueString(row.getCell(2)));  //corresponding STATION_NAME in sheet SAMPLES
+					parentSamplingFeatureCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2)));  //corresponding STATION_NAME in sheet SAMPLES
 					
 					//no parent sampling feature if the sampling feature is root sampling feature 
 					if(samplingFeatureCode.equals(parentSamplingFeatureCode)) {
@@ -99,7 +87,7 @@ public class SamplingFeatureParser {
 					samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	
 					
 				} else {
-					samplingFeatureName = formatString(XlsParser.getCellValueString(row.getCell(2))); //corresponding to SAMPLE NAME in sheet ROCKS, MINERALS and INCLUSIONS
+					samplingFeatureName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2))); //corresponding to SAMPLE NAME in sheet ROCKS, MINERALS and INCLUSIONS
 					samplingFeatureCode = samplingFeatureName + "#" + resultNum + "#" + moondbNum;
 					parentSamplingFeatureCode = samplingFeatureName;
 					if (sheetName != "INCLUSIONS") {
@@ -107,7 +95,7 @@ public class SamplingFeatureParser {
 					}
 					
 					if (sheetName != "ROCKS") {
-						String spotID = formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+						String spotID = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
 						if(spotID != null) {
 							samplingFeatureName = samplingFeatureName + "#" + spotID;						
 						}						
