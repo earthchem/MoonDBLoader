@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.moondb.dao.UtilityDao;
 import org.moondb.model.Method;
+import org.moondb.model.MoonDBType;
 import org.moondb.parser.MethodParser;
 import org.moondb.parser.XlsParser;
 
@@ -23,31 +24,24 @@ public class Echecker {
 	
 	private static void variableCheck(HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
 		String content;
+		
 		String[] variables = XlsParser.getCVCodes(workbook, sheetName, "Variable");
 		for(int j=0; j<variables.length; j++) {
+			String varCode = null;
 			if(variables[j].contains("[")) {
-				String varCode = variables[j].substring(0, variables[j].indexOf('['));
-				String varType = variables[j].substring(variables[j].indexOf('[')+1,variables[j].indexOf(']'));
-				int varTypeNum = UtilityDao.getVariableTypeNum(varType);
-				
-				if(UtilityDao.isVariableExist(varCode, varTypeNum)) {
-					content = "Variable <" + variables[j] +"> check:	Passed";
-	        		writeLog(bw, content);
-				} else {
-	        		content = "Variable <" + variables[j] +"> check:	Failed";
-	        		writeLog(bw, content);
-				}
+				varCode = variables[j].substring(0, variables[j].indexOf('[')); //remove type notation like [TE]
 			} else {
-				if(UtilityDao.isVariableExist(variables[j])) {
-					int varNum = UtilityDao.getVariableNum(variables[j]);
-	        		content = "Variable <" + variables[j] +"("+varNum+")" +"> check:	Passed";
-	        		writeLog(bw, content);
-				} else {
-	        		content = "Variable <" + variables[j] +"> check:	Failed";
-	        		writeLog(bw, content);				        				
-				}				
+				varCode = variables[j];
 			}
-
+			int varTypeNum = MoonDBType.VARIABLE_TYPE_MV.getValue();
+			if(UtilityDao.isVariableExist(varCode,varTypeNum)) {
+				int varNum = UtilityDao.getVariableNum(varCode,varTypeNum);
+	        	content = "Variable <" + variables[j] +"("+varNum+")" +"> check:	Passed";
+	        	writeLog(bw, content);
+			} else {
+	        	content = "Variable <" + variables[j] +"> check:	Failed";
+	        	writeLog(bw, content);				        				
+			}				
 		}
 	}
 	
@@ -133,7 +127,7 @@ public class Echecker {
 		        		writeLog(bw, content);
 		        		
 		        		//Method code checking
-		        		List<Method> methodList  = MethodParser.parseMethod(workbook).getMethods();
+		        	/*	List<Method> methodList  = MethodParser.parseMethod(workbook).getMethods();
 		        		for(Method method:methodList) {
 		        			String methodCode = method.getMethodTechnique();
 		        			if(UtilityDao.isMethodExist(methodCode)) {
@@ -143,7 +137,7 @@ public class Echecker {
 				        		content = "Method <" + methodCode +"> check:	Failed";
 				        		writeLog(bw, content);		        				
 		        			}
-		        		}
+		        		}*/
 		        	} else {
 		        		content = "Row ending Symbol check(METHODS):   Failed";
 		        		writeLog(bw, content);
