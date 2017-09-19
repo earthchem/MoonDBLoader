@@ -56,14 +56,24 @@ public enum RowCellPos {
 	DATA_ROW_B(8),         
 	
 	/*
-	 * Column number of SPOT_ID in sheet MINERALS
+	 * Column number of SPOT_ID in sheet MINERALS and INCLUSIONS
 	 */
 	MINERALS_SPOTID_COL_NUM(4),
+	INCLUSIONS_SPOTID_COL_NUM(3),
 	
 	/*
-	 * Column number of SPOT_ID in sheet INCLUSIONS
+	 * Column number of CALC_AVGE in sheet ROCKS, MINERALS and INCLUSIONS
 	 */
-	INCLUSIONS_SPOTID_COL_NUM(3);
+	ROCKS_AVGE_COL_NUM(5),
+	MINERALS_AVGE_COL_NUM(6),
+	INCLUSIONS_AVGE_COL_NUM(5),
+	
+	/*
+	 * Column number of NUMBER OF REPLICATE in sheet ROCKS, MINERALS and INCLUSIONS
+	 */
+	ROCKS_REPLICATE_COL_NUM(4),
+	MINERALS_REPLICATE_COL_NUM(5),
+	INCLUSIONS_REPLICATE_COL_NUM(4);
 
 	private final int value;
 	
