@@ -6,6 +6,8 @@ import org.moondb.model.Action;
 import org.moondb.model.Actions;
 import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
+import org.moondb.model.Method;
+import org.moondb.model.Methods;
 import org.moondb.model.SamplingFeature;
 import org.moondb.model.SamplingFeatures;
 import org.moondb.util.DatabaseUtil;
@@ -50,10 +52,10 @@ public class UtilityDao {
 			return false;	
 	}
 	
-	public static boolean isMethodExist(String methodCode) {
-		String query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodCode + "' AND method_type_num=3";
+	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
+		String query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND orgnization_num='" + methodLabNum + "' AND method_description='"+methodComment + "' AND method_type_num=3";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
-		if (count == 1)
+		if (count > 0)
 			return true;
 		else
 			return false;	
@@ -135,8 +137,8 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
-	public static Integer getMethodNum(String methodCode) {
-		String query = "SELECT method_num FROM method WHERE method_code='" + methodCode + "' AND method_type_num=3";
+	public static Integer getMethodNum(String methodTech, Integer methodLabNum, String methodComment) {
+		String query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + "' AND method_description='" + methodComment + "' AND method_type_num=3";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -239,5 +241,22 @@ public class UtilityDao {
 			}			
 	
 		}
+	}
+	
+	public static void saveMethods(Methods methods) {
+		List<Method> methodList = methods.getMethods();
+		
+		for(Method method: methodList) {
+			String methodTech = method.getMethodTechnique();
+			Integer methodLabNum = method.getMethodLabNum();
+			String methodComment = method.getMethodComment();
+			String query;
+			if(!isMethodExist(methodTech,methodLabNum,methodComment)) {
+				//save to table method
+				query = "INSERT INTO method(method_code,organization_num,method_description) VALUES('"+ methodTech+"','"+methodLabNum+"','"+methodComment+"')";
+				DatabaseUtil.update(query);
+			}
+		}
+		
 	}
 }
