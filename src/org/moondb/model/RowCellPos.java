@@ -3,6 +3,15 @@ package org.moondb.model;
 //Specific row number and cell number in sheets of data template
 public enum RowCellPos {
 	/*
+	 * the cell num holding end sign "-1" of the sheet SAMPLES
+	 */
+	SAMPLES_DATA_END_CELL_NUM(0),
+	/*
+	 * the cell num holding end sign "-1" of the sheet ROCKS, MINERALS and INCLUSIONS
+	 */
+	RMI_DATA_END_CELL_NUM(2),
+
+	/*
 	 * Beginning row number in sheet TABLE_TITLES
 	 */
 	TABLE_TITLES_ROW_B(1),             

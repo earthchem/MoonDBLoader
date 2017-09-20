@@ -3,6 +3,10 @@ package org.moondb.model;
 public enum MoonDBType {
 	
 	/*
+	 * Type of method, value from table method_type of moonDB
+	 */
+	METHOD_TYPE_LABANALYSIS(3),
+	/*
 	 * Type of action, value from table action_type of moonDB
 	 */
 	ACTION_TYPE_SPECIMEN_ANALYSIS(20),
