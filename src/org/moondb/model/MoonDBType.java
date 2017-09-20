@@ -1,6 +1,15 @@
 package org.moondb.model;
 
 public enum MoonDBType {
+	/*
+	 * Type of processing_level, value from table processing_level of moonDB
+	 */
+	
+	PROCESSING_LEVEL_RAW_DATA(1),
+	/*
+	 * Type of result, value from table result_type of moonDB
+	 */
+	RESULT_TYPE_MEASUREMENT(1),
 	
 	/*
 	 * Type of method, value from table method_type of moonDB
