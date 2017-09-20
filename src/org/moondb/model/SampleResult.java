@@ -6,9 +6,6 @@ public class SampleResult {
 	
 	private int datasetNum;
 	private int samplingFeatureNum;
-	private int[] variableNums;
-	private int[] methodNums;
-	private int[] unitNums;
 	private List<ChemistryResult> chemistryResults;
 	private String analysisComment;
 	private String calcAvge;
@@ -42,31 +39,6 @@ public class SampleResult {
 	public void setSamplingFeatureNum(int samplingFeatureNum) {
 		this.samplingFeatureNum = samplingFeatureNum;
 	}
-	
-	public int[] getVariableNums() {
-		return variableNums;
-	}
-	
-	public void setVariableNums(int[] variableNums) {
-		this.variableNums = variableNums;
-	}
-	
-	public int[] getMethodNums() {
-		return methodNums;
-	}
-	
-	public void setMethodNums(int[] methodNums) {
-		this.methodNums = methodNums;
-	}
-	
-	public int[] getUnitNums() {
-		return unitNums;
-	}
-	
-	public void setUnitNums(int[] unitNums) {
-		this.unitNums = unitNums;
-	}
-	
 	
 	public List<ChemistryResult> getChemistryResults() {
 		return chemistryResults;
