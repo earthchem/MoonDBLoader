@@ -89,8 +89,8 @@ public class XlsParser {
 	public static boolean isDataExist(HSSFWorkbook workbook,String sheetName) {
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		HSSFRow row = sheet.getRow(RowCellPos.DATA_ROW_B.getValue());
-		String value = getCellValueString(row.getCell(0));
-		if(value.equals("-1.0") || value.equals("-1")) {
+		String value = XlsParser.formatString(getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_CELL_NUM.getValue())));
+		if(value.equals("-1")) {
 			return false;
 		} else {
 			return true;
@@ -168,8 +168,9 @@ public class XlsParser {
 	 */
 	public static String formatString (String str) {
 
-		if(str != null && str.endsWith(".0")) {          
-			str = str.replaceAll(".0", "").trim();
+		if(str != null && str.endsWith(".0")) {
+			
+			str = str.substring(0, str.lastIndexOf('.'));
 		} 
 		
 		return str;
