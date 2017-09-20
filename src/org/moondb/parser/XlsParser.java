@@ -186,7 +186,8 @@ public class XlsParser {
 		    case BOOLEAN:
 		    	result = Boolean.toString(cell.getBooleanCellValue()).trim();
 	        case NUMERIC: // numeric value in Excel
-	            result = Double.toString(cell.getNumericCellValue()).trim();
+	            //result = Double.toString(cell.getNumericCellValue()).trim();
+	        	result = String.valueOf(cell.getNumericCellValue());
 	            break;
 	        case STRING: // String Value in Excel 
 	            result = cell.getStringCellValue().trim();
