@@ -17,17 +17,21 @@ import org.moondb.dao.DatasetDao;
 import org.moondb.dao.UtilityDao;
 import org.moondb.model.Action;
 import org.moondb.model.Actions;
+import org.moondb.model.ChemistryResult;
 import org.moondb.model.Citation;
 import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 import org.moondb.model.Method;
 import org.moondb.model.Methods;
 import org.moondb.model.RowCellPos;
+import org.moondb.model.SampleResult;
+import org.moondb.model.SampleResults;
 import org.moondb.model.SamplingFeature;
 import org.moondb.model.SamplingFeatures;
 import org.moondb.parser.ActionParser;
 import org.moondb.parser.DatasetParser;
 import org.moondb.parser.MethodParser;
+import org.moondb.parser.SampleDataParser;
 import org.moondb.parser.SamplingFeatureParser;
 import org.moondb.parser.XlsParser;
 public class LoadData {
@@ -117,12 +121,33 @@ public class LoadData {
 				// loading MineralAnalysis sampling features
 				SamplingFeatures MineralAnalysisSFS = SamplingFeatureParser.parseSamplingFeature(workbook, "MINERALS", moondbNum);
 				if (MineralAnalysisSFS != null) {
-					UtilityDao.saveSamplingFeature(MineralAnalysisSFS);
-					//List<SamplingFeature> sfList = MineralAnalysisSFS.getSamplingFeatures();
-					//for(SamplingFeature sf: sfList) {
-					//	System.out.println("sf code: " + sf.getSamplingFeatureCode());
-					//	System.out.println("sf name: " + sf.getSamplingFeatureName());
-					//}
+					//UtilityDao.saveSamplingFeature(MineralAnalysisSFS);
+					
+					int[] variableNums = SampleDataParser.getVariableNums(workbook, "MINERALS");
+					int[] unitNums = SampleDataParser.getUnitNums(workbook, "MINERALS");
+					int[] methodNums = SampleDataParser.getMethodNums(workbook, "MINERALS",methods);
+
+					SampleResults sampleResults = SampleDataParser.parseSampleData(workbook, "MINERALS", datasets, moondbNum, variableNums,unitNums,methodNums);
+					List<SampleResult> srList = sampleResults.getSampleResults();
+					for(SampleResult sr: srList) {
+						System.out.println("dataset: " + sr.getDatasetNum());
+						System.out.println("analysis comment: " + sr.getAnalysisComment());
+						System.out.println("avage: " + sr.getCalcAvge());
+						System.out.println("mineral: " + sr.getMineral());
+						System.out.println("grain: " + sr.getGrain());
+						System.out.println("rim/core: " + sr.getRimCore());
+						System.out.println("size: " + sr.getMineralSize());
+						List<ChemistryResult> crList = sr.getChemistryResults();
+						for(ChemistryResult cr: crList) {
+							System.out.println("method: " + cr.getMethodNum());
+							System.out.println("var: " + cr.getVariableNum());
+							System.out.println("unit: " + cr.getUnitNum());
+							System.out.println("value: " + cr.getValue());
+						}
+
+
+					}
+			
 					System.out.println("Step five finished");
 				}
 			} else if (XlsParser.isDataExist(workbook, "INCLUSIONS")) {
