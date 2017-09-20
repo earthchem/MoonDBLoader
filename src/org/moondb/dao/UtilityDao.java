@@ -8,6 +8,7 @@ import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 import org.moondb.model.Method;
 import org.moondb.model.Methods;
+import org.moondb.model.MoonDBType;
 import org.moondb.model.SamplingFeature;
 import org.moondb.model.SamplingFeatures;
 import org.moondb.util.DatabaseUtil;
@@ -53,7 +54,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
-		String query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND orgnization_num='" + methodLabNum + "' AND method_description='"+methodComment + "' AND method_type_num=3";
+		String query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num='" + methodLabNum + "' AND method_description='"+methodComment + "' AND method_type_num=3";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
 			return true;
@@ -138,7 +139,7 @@ public class UtilityDao {
 	}
 	
 	public static Integer getMethodNum(String methodTech, Integer methodLabNum, String methodComment) {
-		String query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + "' AND method_description='" + methodComment + "' AND method_type_num=3";
+		String query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description='" + methodComment + "' AND method_type_num=3";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -211,8 +212,9 @@ public class UtilityDao {
 				DatabaseUtil.update(query);
 				
 				if(sfParentCode != null) {
+					System.out.println("parent:" + sfParentCode);
 					Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
-					Integer sfParentNum = getSamplingFeatureNum(sfParentCode,1); //Parent sampling feature must be specimen
+					Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
 					Integer relationshipTypeNum = 9;  //isSubSampleOf
 					//save to table related_feature
 					query = "INSERT INTO related_feature(sampling_feature_num,related_sampling_feature_num,relationship_type_num) VALUES('"+sfNum+"',"+sfParentNum+",'"+relationshipTypeNum+"')";
@@ -236,7 +238,8 @@ public class UtilityDao {
 			String query;
 			if (!isActionExist(actionName)) {
 				//save to table action
-				query = "INSERT INTO action(action_type_num,method_num,action_name,action_description,dataset_num) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName+"',"+actionDescription+",'"+datasetNum+"')";
+				query = "INSERT INTO action(action_type_num,method_num,action_name,action_description,dataset_num) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName+"','"+actionDescription+"','"+datasetNum+"')";
+				System.out.println(query);
 				DatabaseUtil.update(query);
 			}			
 	
@@ -250,10 +253,13 @@ public class UtilityDao {
 			String methodTech = method.getMethodTechnique();
 			Integer methodLabNum = method.getMethodLabNum();
 			String methodComment = method.getMethodComment();
+			String methodName = method.getMethodName();
+			Integer methodTypeNum = method.getMethodTypeNum();
+			
 			String query;
 			if(!isMethodExist(methodTech,methodLabNum,methodComment)) {
 				//save to table method
-				query = "INSERT INTO method(method_code,organization_num,method_description) VALUES('"+ methodTech+"','"+methodLabNum+"','"+methodComment+"')";
+				query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"','"+methodComment +"','" + methodName+"')";
 				DatabaseUtil.update(query);
 			}
 		}
