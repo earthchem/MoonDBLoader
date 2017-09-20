@@ -71,6 +71,15 @@ public class UtilityDao {
 			return false;
 	}
 	
+	public static boolean isNumericDataExist(int resultNum, double value, int unitNum) {
+		String query = "SELECT COUNT(*) FROM numeric_data WHERE result_num='" + resultNum + "' AND value_meas='" + value +"' AND unit_num='" + unitNum + "')";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count > 0)
+			return true;
+		else
+			return false;
+	}
+	
 	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
 		String query = null;
 		if (methodComment == null) {
@@ -299,8 +308,15 @@ public class UtilityDao {
 		int processingLevelNum = MoonDBType.PROCESSING_LEVEL_RAW_DATA.getValue();
 		int valueCount = 1;
 		String valueType = "numeric";
-		if (isResultExist(featureActionNum, variableNum)) {
+		if (!isResultExist(featureActionNum, variableNum)) {
 			String query = "INSERT INTO result(feature_action_num, result_type_num, variable_num, processing_level_num, value_count, value_type) values('" + featureActionNum + "','" + resultTypeNum + "','" + variableNum + "','" + processingLevelNum + "','" + valueCount + "','" + valueType + "')";
+			DatabaseUtil.update(query);
+		}
+	}
+	
+	public static void saveNumericData(int resultNum, double value, int unitNum) {
+		if (!isNumericDataExist(resultNum, value, unitNum)) {
+			String query = "INSERT INTO numeric_data(result_num, value_meas, unit_num) values('" + resultNum + "','" + value + "','" + unitNum + "')";
 			DatabaseUtil.update(query);
 		}
 	}
