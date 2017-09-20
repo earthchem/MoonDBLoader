@@ -62,6 +62,15 @@ public class UtilityDao {
 			return false;	
 	}
 	
+	public static boolean isResultExist(int featureActionNum, int variableNum) {
+		String query = "SELECT COUNT(*) FROM result WHERE feature_action_num='" + featureActionNum + "' AND variable_num='" + variableNum +"'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count > 0)
+			return true;
+		else
+			return false;
+	}
+	
 	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
 		String query = null;
 		if (methodComment == null) {
@@ -188,6 +197,11 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
+	public static Integer getResultNum (int featureActionNum, int variableNum) {
+		String query = "SELECT result_num FROM result WHERE feature_action_num='" + featureActionNum + "' AND variable_num='" + variableNum + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
 	public static Integer getSamplingFeatureNum(String samplingFeatureCode, int samplingFeatureTypeNum) {
 		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "' AND sampling_feature_type_num='" + samplingFeatureTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
@@ -274,9 +288,21 @@ public class UtilityDao {
 	}
 	
 	public static void saveFeatureAction(int samplingFeatureNum, int actionNum) {
-		String query;
-		query = "INSERT INTO feature_action(sampling_feature_num, action_num) values('" + samplingFeatureNum +"','" + actionNum + "')";
-		DatabaseUtil.update(query);
+		if (!isFeatureActionExist(samplingFeatureNum, actionNum)) {
+			String query = "INSERT INTO feature_action(sampling_feature_num, action_num) values('" + samplingFeatureNum +"','" + actionNum + "')";
+			DatabaseUtil.update(query);	
+		}
+	}
+	
+	public static void saveResult(int featureActionNum, int variableNum) {
+		int resultTypeNum = MoonDBType.RESULT_TYPE_MEASUREMENT.getValue();
+		int processingLevelNum = MoonDBType.PROCESSING_LEVEL_RAW_DATA.getValue();
+		int valueCount = 1;
+		String valueType = "numeric";
+		if (isResultExist(featureActionNum, variableNum)) {
+			String query = "INSERT INTO result(feature_action_num, result_type_num, variable_num, processing_level_num, value_count, value_type) values('" + featureActionNum + "','" + resultTypeNum + "','" + variableNum + "','" + processingLevelNum + "','" + valueCount + "','" + valueType + "')";
+			DatabaseUtil.update(query);
+		}
 	}
 	
 	public static void saveMethods(Methods methods) {
