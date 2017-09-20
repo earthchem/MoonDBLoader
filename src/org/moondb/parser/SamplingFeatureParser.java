@@ -74,7 +74,7 @@ public class SamplingFeatureParser {
 				if (resultNum.equals("-1")) {    //data ending at the row
 					break;
 				}
-				
+				String analysisNum = null;
 				String samplingFeatureCode = null;
 				String samplingFeatureName = null;
 				String samplingFeatureComment = null;
@@ -96,8 +96,9 @@ public class SamplingFeatureParser {
 					samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	
 					
 				} else {
+					analysisNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
 					samplingFeatureName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2))); //corresponding to SAMPLE NAME in sheet ROCKS, MINERALS and INCLUSIONS
-					samplingFeatureCode = samplingFeatureName + "#" + sfTypeSign + resultNum + "#" + moondbNum;
+					samplingFeatureCode = samplingFeatureName + "#" + sfTypeSign + analysisNum + "#" + moondbNum;
 					parentSamplingFeatureCode = samplingFeatureName;
 					if (sheetName != "INCLUSIONS") {
 						samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	//corresponding to ANALYSIS COMMENT in sheet ROCKS and MINERALS 
@@ -105,6 +106,9 @@ public class SamplingFeatureParser {
 					
 					if (sheetName != "ROCKS") {
 						String spotID = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+						//String spot_ID = XlsParser.getCellValueString(row.getCell(spotIDCellNum));
+
+						//System.out.println("spot:" + spotID+ ":"+spot_ID);
 						if(spotID != null) {
 							samplingFeatureName = samplingFeatureName + "#" + spotID;						
 						}						
