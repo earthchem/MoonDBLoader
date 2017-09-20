@@ -54,7 +54,12 @@ public class UtilityDao {
 	}
 	
 	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
-		String query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num='" + methodLabNum + "' AND method_description='"+methodComment + "' AND method_type_num=3";
+		String query = null;
+		if (methodComment == null) {
+			query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num='" + methodLabNum + "' AND method_description is "+methodComment + " AND method_type_num=3";
+		} else {
+			query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num='" + methodLabNum + "' AND method_description='"+methodComment + "' AND method_type_num=3";
+		}
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
 			return true;
@@ -139,7 +144,12 @@ public class UtilityDao {
 	}
 	
 	public static Integer getMethodNum(String methodTech, Integer methodLabNum, String methodComment) {
-		String query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description='" + methodComment + "' AND method_type_num=3";
+		String query = null;
+		if(methodComment == null) {
+			query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description is" + methodComment + " AND method_type_num=3";
+		} else {
+			query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description='" + methodComment + "' AND method_type_num=3";
+		}
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -208,7 +218,11 @@ public class UtilityDao {
 			String query;
 			if (!isSamplingFeatureExist(sfCode, sfTypeNum)) {
 				//save to table sampling_feature
-				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"','"+sfComment+"')";
+				if(sfComment == null) {
+					query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"',"+sfComment+")";
+				} else {
+					query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"','"+sfComment+"')";
+				}
 				DatabaseUtil.update(query);
 				
 				if(sfParentCode != null) {
@@ -259,7 +273,12 @@ public class UtilityDao {
 			String query;
 			if(!isMethodExist(methodTech,methodLabNum,methodComment)) {
 				//save to table method
-				query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"','"+methodComment +"','" + methodName+"')";
+				if(methodComment == null) {
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"',"+methodComment +",'" + methodName+"')";
+
+				} else {
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"','"+methodComment +"','" + methodName+"')";
+				}
 				DatabaseUtil.update(query);
 			}
 		}
