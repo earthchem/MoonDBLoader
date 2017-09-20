@@ -44,10 +44,19 @@ public class UtilityDao {
 	}
 	
 	
-	public static boolean isActionExist(String actionName) {
-		String query = "SELECT COUNT(*) FROM action WHERE action_name='" + actionName + "' AND action_type_num=20";
+	public static boolean isActionExist(int methodNum, int datasetNum, int actionTypeNum) {
+		String query = "SELECT COUNT(*) FROM action WHERE method_num='" + methodNum + "' AND dataset_num='" + datasetNum + "' AND action_type_num='" + actionTypeNum +"'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count == 1)
+			return true;
+		else
+			return false;	
+	}
+	
+	public static boolean isFeatureActionExist(int samplingFeatureNum, int actionNum) {
+		String query = "SELECT COUNT(*) FROM feature_action WHERE sampling_feature_num='" + samplingFeatureNum + "' AND action_num='" + actionNum +"'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count > 0)
 			return true;
 		else
 			return false;	
@@ -169,8 +178,13 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
-	public static Integer getActionNum(String actionName) {
-		String query = "SELECT action_num FROM action WHERE action_name='" + actionName + "' AND action_type_num=20";
+	public static Integer getActionNum(int datasetNum, int methodNum, int actionTypeNum) {
+		String query = "SELECT action_num FROM action WHERE dataset_num='" + datasetNum + "' AND method_num='" + methodNum +"' AND action_type_num='" + actionTypeNum + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	public static Integer getFeatureActionNum (int samplingFeatureNum, int actionNum) {
+		String query = "SELECT feature_action_num FROM feature_action WHERE samplingFeature_num='" + samplingFeatureNum + "' AND action_num='" + actionNum + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -250,14 +264,19 @@ public class UtilityDao {
 			int methodNum = action.getMethodNum();
 			int datasetNum = action.getDatasetNum();
 			String query;
-			if (!isActionExist(actionName)) {
+			if (!isActionExist(methodNum,datasetNum,actionTypeNum)) {
 				//save to table action
 				query = "INSERT INTO action(action_type_num,method_num,action_name,action_description,dataset_num) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName+"','"+actionDescription+"','"+datasetNum+"')";
-				System.out.println(query);
 				DatabaseUtil.update(query);
 			}			
 	
 		}
+	}
+	
+	public static void saveFeatureAction(int samplingFeatureNum, int actionNum) {
+		String query;
+		query = "INSERT INTO feature_action(sampling_feature_num, action_num) values('" + samplingFeatureNum +"','" + actionNum + "')";
+		DatabaseUtil.update(query);
 	}
 	
 	public static void saveMethods(Methods methods) {
