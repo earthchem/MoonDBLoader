@@ -175,18 +175,8 @@ public class SampleDataParser {
 		 * The ending cell number of data
 		 */
 		int lastCellNum = XlsParser.getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
-		/*
-		 * The size of array for variableNums,methodNums,unitNums and chemicalData
-		 */
-        int dataEntrySize = lastCellNum-beginCellNum;
-        
-        
-        
+	           
 
-        /*
-         * Initializing array of chemicalData
-         */
-		double[] chemicalData = new double[dataEntrySize];
 		//Get iterator to all the rows in current sheet
 		Iterator<Row> rowIterator = sheet.iterator();
 		ArrayList<SampleResult> sampleResultList = new ArrayList<SampleResult>();
@@ -264,9 +254,15 @@ public class SampleDataParser {
 					
 					String minerialSize = XlsParser.getCellValueString(row.getCell(10));
 					sampleResult.setMineralSize(minerialSize);					
+					
+					String spotId = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+					sampleResult.setSpotId(spotId);
 				}
 				
 				if (sheetName == "INCLUSIONS") {
+					String spotId = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+					sampleResult.setSpotId(spotId);
+					
 					String inclusionType = XlsParser.getCellValueString(row.getCell(6));
 					sampleResult.setInclusionType(inclusionType);
 					

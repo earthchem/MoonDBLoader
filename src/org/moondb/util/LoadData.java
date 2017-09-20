@@ -131,6 +131,9 @@ public class LoadData {
 					List<SampleResult> srList = sampleResults.getSampleResults();
 					for(SampleResult sr: srList) {
 						System.out.println("dataset: " + sr.getDatasetNum());
+						System.out.println("sf: " + sr.getSamplingFeatureNum());
+						System.out.println("spot: " + sr.getSpotId());
+
 						System.out.println("analysis comment: " + sr.getAnalysisComment());
 						System.out.println("avage: " + sr.getCalcAvge());
 						System.out.println("mineral: " + sr.getMineral());
