@@ -35,25 +35,34 @@ public class SamplingFeatureParser {
 		int sfTypeNum = -1;
 		int beginRowNum = -1;
 		int spotIDCellNum = -1;
+		int endSignCellNum = -1;
+		String sfTypeSign = null;
 		
 		switch(sheetName) {
 		case "SAMPLES":
 			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue(); //Specimen sampling feature
 			beginRowNum = RowCellPos.SAMPLES_ROW_B.getValue();
+			endSignCellNum = RowCellPos.SAMPLES_DATA_END_CELL_NUM.getValue();
 			break;
 		case "ROCKS":
 			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_ROCKANALYSIS.getValue();  //RockAnalysis sampling feature
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
+			sfTypeSign = "R";
+			endSignCellNum = RowCellPos.RMI_DATA_END_CELL_NUM.getValue();
 			break;
 		case "MINERALS":
 			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_MINERALANALYSIS.getValue();  //MineralAnalysis sampling feature
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
+			sfTypeSign = "M";
 			spotIDCellNum = RowCellPos.MINERALS_SPOTID_COL_NUM.getValue();
+			endSignCellNum = RowCellPos.RMI_DATA_END_CELL_NUM.getValue();
 			break;
 		case "INCLUSIONS":
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
+			sfTypeSign = "I";
 			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_INCLUSIONANALYSIS.getValue();  //InclusionAnalysis sampling feature
 			spotIDCellNum = RowCellPos.INCLUSIONS_SPOTID_COL_NUM.getValue();
+			endSignCellNum = RowCellPos.RMI_DATA_END_CELL_NUM.getValue();
 			break;
 		}
 		while (rowIterator.hasNext()) {
@@ -61,7 +70,7 @@ public class SamplingFeatureParser {
 			Row row = rowIterator.next();
 
 			if(row.getRowNum()>= beginRowNum) {
-				String resultNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
+				String resultNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(endSignCellNum)));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
 				if (resultNum.equals("-1")) {    //data ending at the row
 					break;
 				}
@@ -88,7 +97,7 @@ public class SamplingFeatureParser {
 					
 				} else {
 					samplingFeatureName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2))); //corresponding to SAMPLE NAME in sheet ROCKS, MINERALS and INCLUSIONS
-					samplingFeatureCode = samplingFeatureName + "#" + resultNum + "#" + moondbNum;
+					samplingFeatureCode = samplingFeatureName + "#" + sfTypeSign + resultNum + "#" + moondbNum;
 					parentSamplingFeatureCode = samplingFeatureName;
 					if (sheetName != "INCLUSIONS") {
 						samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	//corresponding to ANALYSIS COMMENT in sheet ROCKS and MINERALS 
