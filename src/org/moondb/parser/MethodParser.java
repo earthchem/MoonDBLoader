@@ -8,6 +8,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.moondb.model.Method;
 import org.moondb.model.Methods;
+import org.moondb.model.MoonDBType;
 
 
 public class MethodParser {
@@ -31,11 +32,14 @@ public class MethodParser {
 				String methodTech = XlsParser.getCellValueString(row.getCell(2)); //corresponding to TECHNIQUE in sheet METHODS
 				Integer methodLabNum = Integer.parseInt(XlsParser.formatString(XlsParser.getCellValueString(row.getCell(3))));  //corresponding to LAB in sheet METHODS
 				String methodComment = XlsParser.getCellValueString(row.getCell(4));   //corresponding to METHOD_COMMENT in sheet METHODS
+				Integer methodTypeNum = MoonDBType.METHOD_TYPE_LABANALYSIS.getValue();
 				
 				method.setMethodCode(methodCode);
 				method.setMethodTechnique(methodTech);
+				method.setMethodName(methodTech);
 				method.setMethodLabNum(methodLabNum);
 				method.setMethodComment(methodComment);
+				method.setMethodTypeNum(methodTypeNum);
 				methodList.add(method);
 			}	
 		}

@@ -9,6 +9,8 @@ public class Method {
 	private String methodTechnique;
 	private Integer methodLabNum;
 	private String methodComment;
+	private String methodName;
+	private Integer methodTypeNum;
 
 	
 	public String getMethodCode() {
@@ -41,5 +43,21 @@ public class Method {
 	
 	public void setMethodComment(String methodComment) {
 		this.methodComment = methodComment;
+	}
+	
+	public String getMethodName() {
+		return methodName;
+	}
+	
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+	
+	public Integer getMethodTypeNum() {
+		return methodTypeNum;
+	}
+	
+	public void setMethodTypeNum(Integer methodTypeNum) {
+		this.methodTypeNum = methodTypeNum;
 	}
 }
