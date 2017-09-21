@@ -345,4 +345,24 @@ public class UtilityDao {
 		}
 		
 	}
+	public static boolean isAnnotationExist(int annotationTypeNum, String annotationText, int citationNum) {
+		String query = "SELECT COUNT(*) FROM annotation WHERE annotation_type_num='" + annotationTypeNum + "' AND annotation_text='"+annotationText + "' AND data_source_num='" + citationNum +"'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count >0)
+			return true;
+		else
+			return false;	
+	}
+	
+	public static Integer getAnnotationNum (int annotationTypeNum, String annotationText, int citationNum) {
+		String query = "SELECT annotation_num FROM annotation WHERE annotation_type_num='" + annotationTypeNum + "' AND annotation_text='" + annotationText + "' AND data_source_num='" + citationNum + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	public static void saveAnnotation(int annotationTypeNum, String annotationText, int citationNum) {
+		if (!isAnnotationExist(annotationTypeNum, annotationText, citationNum)) {
+			String query = "INSERT INTO annotation(annotation_type_num, annotation_text, data_source_num) values('" + annotationTypeNum + "','" + annotationText + "','" + citationNum + "')";
+			DatabaseUtil.update(query);
+		}	
+	}
 }
