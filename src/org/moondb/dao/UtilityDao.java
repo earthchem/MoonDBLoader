@@ -72,7 +72,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isNumericDataExist(int resultNum, double value, int unitNum) {
-		String query = "SELECT COUNT(*) FROM numeric_data WHERE result_num='" + resultNum + "' AND value_meas='" + value +"' AND unit_num='" + unitNum + "')";
+		String query = "SELECT COUNT(*) FROM numeric_data WHERE result_num='" + resultNum + "' AND value_meas='" + value +"' AND unit_num='" + unitNum + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
 			return true;
@@ -202,7 +202,7 @@ public class UtilityDao {
 	}
 	
 	public static Integer getFeatureActionNum (int samplingFeatureNum, int actionNum) {
-		String query = "SELECT feature_action_num FROM feature_action WHERE samplingFeature_num='" + samplingFeatureNum + "' AND action_num='" + actionNum + "'";
+		String query = "SELECT feature_action_num FROM feature_action WHERE sampling_feature_num='" + samplingFeatureNum + "' AND action_num='" + actionNum + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -345,6 +345,7 @@ public class UtilityDao {
 		}
 		
 	}
+	
 	public static boolean isAnnotationExist(int annotationTypeNum, String annotationText, int citationNum) {
 		String query = "SELECT COUNT(*) FROM annotation WHERE annotation_type_num='" + annotationTypeNum + "' AND annotation_text='"+annotationText + "' AND data_source_num='" + citationNum +"'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
@@ -365,4 +366,21 @@ public class UtilityDao {
 			DatabaseUtil.update(query);
 		}	
 	}
+	
+	public static boolean isSamplingFeatureAnnotationExist(int samplingFeatureNum, int annotationNum) {
+		String query = "SELECT COUNT(*) FROM sampling_feature_annotation WHERE sampling_feature_num='" + samplingFeatureNum +"'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count >0)
+			return true;
+		else
+			return false;	
+	}
+	
+	public static void saveSamplingFeatureAnnotation(int samplingFeatureNum, int annotatioNum) {
+		if (!isSamplingFeatureAnnotationExist(samplingFeatureNum, annotatioNum)) {
+			String query = "INSERT INTO sampling_feature_annotation(sampling_feature_num, annotation_num) values('" + samplingFeatureNum + "','" + annotatioNum + "')";
+			DatabaseUtil.update(query);
+		}
+	}
+	
 }
