@@ -5,13 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.moondb.dao.UtilityDao;
-import org.moondb.model.Method;
 import org.moondb.model.MoonDBType;
-import org.moondb.parser.MethodParser;
 import org.moondb.parser.XlsParser;
 
 public class Echecker {

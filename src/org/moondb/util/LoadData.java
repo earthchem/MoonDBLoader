@@ -3,31 +3,22 @@ package org.moondb.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+
 import java.util.List;
 
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.moondb.dao.CitationDao;
-import org.moondb.dao.DatasetDao;
+
 import org.moondb.dao.UtilityDao;
-import org.moondb.model.Action;
+
 import org.moondb.model.Actions;
 import org.moondb.model.ChemistryResult;
-import org.moondb.model.Citation;
-import org.moondb.model.Dataset;
+
 import org.moondb.model.Datasets;
-import org.moondb.model.Method;
 import org.moondb.model.Methods;
 import org.moondb.model.MoonDBType;
-import org.moondb.model.RowCellPos;
 import org.moondb.model.SampleResult;
 import org.moondb.model.SampleResults;
-import org.moondb.model.SamplingFeature;
 import org.moondb.model.SamplingFeatures;
 import org.moondb.parser.ActionParser;
 import org.moondb.parser.DatasetParser;
@@ -194,49 +185,7 @@ public class LoadData {
 				}
 			}
 			
-			List<Method> methodList = methods.getMethods();
-			List<Dataset> dss = DatasetParser.parseDataset(workbook, moondbNum).getDatasets();
-			
-			//SamplingFeatures sfs = SamplingFeatureParser.parseSamplingFeature(workbook);
 
-			//DatasetDao dsDao = new DatasetDao(citation,dss);
-			//dsDao.saveDataToDB();
-			System.out.println("Status of Rock Data: "+ XlsParser.isDataExist(workbook, "ROCKS"));
-			System.out.println("Status of Mineral Data: "+ XlsParser.isDataExist(workbook, "Minerals"));
-			System.out.println("Status of Inclusion Data: "+ XlsParser.isDataExist(workbook, "Inclusions"));
-
-			HSSFSheet sheet = workbook.getSheet("ROCKS");
-			Integer lastCellNum = XlsParser.getLastCellNum(sheet, RowCellPos.VARIABLE_ROW_B.getValue());
-			System.out.println("last cell num is: "+ lastCellNum);
-			//Integer variableCode = UtilityDao.getMethodNum("Unknown");
-			//System.out.println("variable num is:" + variableCode);
-			//Get iterator to all the rows in current sheet
-			/*Iterator<Row> rowIterator = sheet.iterator();
-			while (rowIterator.hasNext()) {
-				Row row = rowIterator.next();
-				//For each row, iterate through each columns
-				Iterator<Cell> cellIterator = row.cellIterator();
-				while(cellIterator.hasNext()) {
-					
-					Cell cell = cellIterator.next();
-					
-					switch(cell.getCellTypeEnum()) {		
-						case BOOLEAN:
-							System.out.print(cell.getBooleanCellValue() + "\t\t");
-							break;
-						case NUMERIC:
-							System.out.print(cell.getNumericCellValue() + "\t\t");
-							break;
-						case STRING:
-							System.out.print(cell.getStringCellValue() + "\t\t");
-							break;
-					default:
-						break;
-					}
-				}
-				System.out.println("");
-			}
-*/
 			workbook.close();
 		} finally {
 		
