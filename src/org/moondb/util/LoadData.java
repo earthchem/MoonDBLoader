@@ -23,6 +23,7 @@ import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 import org.moondb.model.Method;
 import org.moondb.model.Methods;
+import org.moondb.model.MoonDBType;
 import org.moondb.model.RowCellPos;
 import org.moondb.model.SampleResult;
 import org.moondb.model.SampleResults;
@@ -121,15 +122,38 @@ public class LoadData {
 				// loading MineralAnalysis sampling features
 				SamplingFeatures MineralAnalysisSFS = SamplingFeatureParser.parseSamplingFeature(workbook, "MINERALS", moondbNum);
 				if (MineralAnalysisSFS != null) {
-					//UtilityDao.saveSamplingFeature(MineralAnalysisSFS);
+					UtilityDao.saveSamplingFeature(MineralAnalysisSFS);
 					
 					int[] variableNums = SampleDataParser.getVariableNums(workbook, "MINERALS");
 					int[] unitNums = SampleDataParser.getUnitNums(workbook, "MINERALS");
 					int[] methodNums = SampleDataParser.getMethodNums(workbook, "MINERALS",methods);
 
+					int citationNum = UtilityDao.getCitationNum(moondbNum);
 					SampleResults sampleResults = SampleDataParser.parseSampleData(workbook, "MINERALS", datasets, moondbNum, variableNums,unitNums,methodNums);
 					List<SampleResult> srList = sampleResults.getSampleResults();
+					int annotationNum = -1;
 					for(SampleResult sr: srList) {
+						if (sr.getSpotId() != null) {
+							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_SPOT_ID.getValue(), sr.getSpotId(), citationNum);
+							annotationNum = UtilityDao.getAnnotationNum(MoonDBType.ANNOTATION_TYPE_SPOT_ID.getValue(), sr.getSpotId(), citationNum);
+							UtilityDao.saveSamplingFeatureAnnotation(sr.getSamplingFeatureNum(), annotationNum);
+						}
+						if (sr.getCalcAvge() != null) {
+							
+							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_CALCULATED_AVERAGE.getValue(), sr.getCalcAvge(), citationNum);
+
+						}
+						if (sr.getMineral() != null)
+							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_MINERAL.getValue(),sr.getMineral(), citationNum);
+						if (sr.getGrain() != null)
+							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_GRAIN.getValue(),sr.getGrain(), citationNum);
+						if (sr.getRimCore() != null)
+							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_RIM_OR_CORE.getValue(),sr.getRimCore(), citationNum);
+						if (sr.getMineralSize() != null)
+							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_MINERAL_SIZE.getValue(),sr.getMineralSize(), citationNum);
+
+							
+
 						System.out.println("dataset: " + sr.getDatasetNum());
 						System.out.println("sf: " + sr.getSamplingFeatureNum());
 						System.out.println("spot: " + sr.getSpotId());
@@ -142,6 +166,13 @@ public class LoadData {
 						System.out.println("size: " + sr.getMineralSize());
 						List<ChemistryResult> crList = sr.getChemistryResults();
 						for(ChemistryResult cr: crList) {
+							int actionNum = UtilityDao.getActionNum(sr.getDatasetNum(), cr.getMethodNum(), MoonDBType.ACTION_TYPE_SPECIMEN_ANALYSIS.getValue());
+							UtilityDao.saveFeatureAction(sr.getSamplingFeatureNum(), actionNum);
+							int featureActionNum = UtilityDao.getFeatureActionNum(sr.getSamplingFeatureNum(), actionNum);
+							UtilityDao.saveResult(featureActionNum, cr.getVariableNum());
+							int resultNum = UtilityDao.getResultNum(featureActionNum, cr.getVariableNum());
+							UtilityDao.saveNumericData(resultNum, cr.getValue(), cr.getUnitNum());
+							System.out.println("action: " + actionNum);
 							System.out.println("method: " + cr.getMethodNum());
 							System.out.println("var: " + cr.getVariableNum());
 							System.out.println("unit: " + cr.getUnitNum());
