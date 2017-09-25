@@ -368,7 +368,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isSamplingFeatureAnnotationExist(int samplingFeatureNum, int annotationNum) {
-		String query = "SELECT COUNT(*) FROM sampling_feature_annotation WHERE sampling_feature_num='" + samplingFeatureNum +"'";
+		String query = "SELECT COUNT(*) FROM sampling_feature_annotation WHERE sampling_feature_num='" + samplingFeatureNum +"' AND annotation_num='" + annotationNum + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count >0)
 			return true;
