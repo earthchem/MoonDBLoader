@@ -1,10 +1,13 @@
 package org.moondb.parser;
 
 
+import java.util.Iterator;
+
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.moondb.model.RowCellPos;
 
 public class XlsParser {
@@ -161,6 +164,30 @@ public class XlsParser {
 		}
 		return lastCellNum;
 	}
+	
+	/*
+	 * 
+	 * Return the last row number in the sheet by the ending character
+	 */
+	public static Integer getLastRowNum(HSSFWorkbook workbook, String sheetName) {
+		Integer lastRowNum = null;
+		
+		HSSFSheet sheet = workbook.getSheet(sheetName);
+		Iterator<Row> rowIterator = sheet.iterator();
+		while (rowIterator.hasNext()) {
+			Row row = rowIterator.next();
+			if (row.getRowNum() >= RowCellPos.DATA_ROW_B.getValue()) {
+				String endCellNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_CELL_NUM.getValue())));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
+				if (endCellNum.equals("-1")) {    //data ending at the row
+					lastRowNum = row.getRowNum();
+					break;
+				}
+			}
+		}
+
+		return lastRowNum;
+	}
+	
 	
 	/*
 	 * if cell type is numeric, the return value will be formatted as numeric, like value 1000 will be returned as 1000.0
