@@ -383,4 +383,20 @@ public class UtilityDao {
 		}
 	}
 	
+	public static boolean isDatasetResultExist (int datasetNum, int resultNum) {
+		String query = "SELECT COUNT(*) FROM dataset_result WHERE dataset_num='" + datasetNum +"' AND result_num='" + resultNum + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count >0)
+			return true;
+		else
+			return false;
+	}
+	
+	public static void saveDatasetResult (int datasetNum, int resultNum) {
+		if (!isDatasetResultExist(datasetNum, resultNum)) {
+			String query = "INSERT INTO dataset_result(dataset_num, result_num) values('" + datasetNum + "','" + resultNum + "')";
+			DatabaseUtil.update(query);
+		}
+	}
+	
 }
