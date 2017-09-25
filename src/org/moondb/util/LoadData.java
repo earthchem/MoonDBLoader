@@ -27,7 +27,90 @@ import org.moondb.parser.SampleDataParser;
 import org.moondb.parser.SamplingFeatureParser;
 import org.moondb.parser.XlsParser;
 public class LoadData {
+	
+	private static void saveAnnotation(int annotationTypeNum, String annotationText, int citationNum, int samplingFeatureNum) {
+		UtilityDao.saveAnnotation(annotationTypeNum, annotationText, citationNum);
+		int annotationNum = UtilityDao.getAnnotationNum(annotationTypeNum, annotationText, citationNum);
+		UtilityDao.saveSamplingFeatureAnnotation(samplingFeatureNum, annotationNum);
+	}
 
+	private static void saveData(HSSFWorkbook workbook, String sheetName, String moondbNum, Methods methods, Datasets datasets) {
+		SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, sheetName, moondbNum);
+		if (samplingFeatures != null) {
+			UtilityDao.saveSamplingFeature(samplingFeatures);
+			
+			int[] variableNums = SampleDataParser.getVariableNums(workbook, sheetName);
+			int[] unitNums = SampleDataParser.getUnitNums(workbook, sheetName);
+			int[] methodNums = SampleDataParser.getMethodNums(workbook, sheetName,methods);
+
+			int citationNum = UtilityDao.getCitationNum(moondbNum);
+			SampleResults sampleResults = SampleDataParser.parseSampleData(workbook, sheetName, datasets, moondbNum, variableNums,unitNums,methodNums);
+			List<SampleResult> srList = sampleResults.getSampleResults();
+					
+			for(SampleResult sr: srList) {
+					
+				//Loading annotation
+				
+				if (sr.getMaterial() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_MATERIAL.getValue(),sr.getMaterial(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getSpotId() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_SPOT_ID.getValue(),sr.getSpotId(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getCalcAvge() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_CALCULATED_AVERAGE.getValue(),sr.getCalcAvge(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getMineral() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_MINERAL.getValue(),sr.getMineral(), citationNum, sr.getSamplingFeatureNum());
+
+				if (sr.getGrain() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_GRAIN.getValue(),sr.getGrain(), citationNum, sr.getSamplingFeatureNum());
+
+				if (sr.getRimCore() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_RIM_OR_CORE.getValue(),sr.getRimCore(), citationNum, sr.getSamplingFeatureNum());
+
+				if (sr.getMineralSize() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_MINERAL_SIZE.getValue(),sr.getMineralSize(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getInclusionType() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_INCLUSION_TYPE.getValue(),sr.getInclusionType(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getInclusionSize() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_INCLUSION_SIZE.getValue(),sr.getInclusionSize(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getInclusionMineral() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_INCLUSION_MINERAL.getValue(),sr.getInclusionMineral(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getHostMineral() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_HOST_MINERAL.getValue(),sr.getHostMineral(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getHostRock() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_HOST_ROCK.getValue(),sr.getHostRock(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getHeated() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_HEATED.getValue(),sr.getHeated(), citationNum, sr.getSamplingFeatureNum());
+				
+				if (sr.getTemperature() != null)
+					saveAnnotation(MoonDBType.ANNOTATION_TYPE_TEMPERATURE.getValue(),sr.getTemperature(), citationNum, sr.getSamplingFeatureNum());
+			
+				
+				int datasetNum = sr.getDatasetNum();
+				//Loading chemical data
+
+				List<ChemistryResult> crList = sr.getChemistryResults();
+				for(ChemistryResult cr: crList) {
+					int actionNum = UtilityDao.getActionNum(sr.getDatasetNum(), cr.getMethodNum(), MoonDBType.ACTION_TYPE_SPECIMEN_ANALYSIS.getValue());
+					UtilityDao.saveFeatureAction(sr.getSamplingFeatureNum(), actionNum);
+					int featureActionNum = UtilityDao.getFeatureActionNum(sr.getSamplingFeatureNum(), actionNum);
+					UtilityDao.saveResult(featureActionNum, cr.getVariableNum());
+					int resultNum = UtilityDao.getResultNum(featureActionNum, cr.getVariableNum());
+					
+					UtilityDao.saveDatasetResult(datasetNum, resultNum);
+					UtilityDao.saveNumericData(resultNum, cr.getValue(), cr.getUnitNum());
+				}
+			}	
+		}
+	}
 	
 	
 	
@@ -37,23 +120,11 @@ public class LoadData {
 		FileInputStream inputStream = new FileInputStream(file);
     	String moondbNum = fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf("."));
     	
-		//Citation citation = new Citation();
-		//citation.setRefNum(fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf(".")));
-		//CitationDao citationDao = new CitationDao(citation);
-		//citation.setCitationCode(citationDao.getCitationCode());
-		//citation.setCitationNum(citationDao.getCitationNum());
-		//System.out.println(citation.getRefNum());
 		try {
 
 			//Get the workbook instance for XLS file 	
 			HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-			//ExcelParser excelParser = new ExcelParser();
-			//excelParser.setLastColumnNum(workbook, "TABLE_TITLES");
-			//System.out.println("last Column is:"+ excelParser.getLastColumnNum());
-			//excelParser.setLastRowNum(workbook, "TABLE_TITLES");
-			//System.out.println("last Row is:"+ excelParser.getLastRowNum());
 
-			//Get first sheet from the workbook
 			/*
 			 * Step one: Loading Datasets from sheet TABLE_TITLES
 			 * Save data to table dataset and citation_dataset
@@ -98,91 +169,20 @@ public class LoadData {
 			 * Step Five: Creating analysis sampling features(sub sampling features)
 			 */
 			
-			if (XlsParser.isDataExist(workbook, "ROCKS")) {
-				
-				 // loading RockAnalysis sampling features
-				 
-				SamplingFeatures RockAnalysisSFS = SamplingFeatureParser.parseSamplingFeature(workbook, "ROCKS", moondbNum);
-				if (RockAnalysisSFS != null) {
-					UtilityDao.saveSamplingFeature(RockAnalysisSFS);
-				}
+			if (XlsParser.isDataExist(workbook, "ROCKS")) {	 
+				System.out.println("Step five begin");
+				saveData(workbook, "ROCKS", moondbNum, methods, datasets);
+				System.out.println("Step five finished");
 				
 			} else if (XlsParser.isDataExist(workbook, "MINERALS")) {
 				System.out.println("Step five begin");
-
-				// loading MineralAnalysis sampling features
-				SamplingFeatures MineralAnalysisSFS = SamplingFeatureParser.parseSamplingFeature(workbook, "MINERALS", moondbNum);
-				if (MineralAnalysisSFS != null) {
-					UtilityDao.saveSamplingFeature(MineralAnalysisSFS);
-					
-					int[] variableNums = SampleDataParser.getVariableNums(workbook, "MINERALS");
-					int[] unitNums = SampleDataParser.getUnitNums(workbook, "MINERALS");
-					int[] methodNums = SampleDataParser.getMethodNums(workbook, "MINERALS",methods);
-
-					int citationNum = UtilityDao.getCitationNum(moondbNum);
-					SampleResults sampleResults = SampleDataParser.parseSampleData(workbook, "MINERALS", datasets, moondbNum, variableNums,unitNums,methodNums);
-					List<SampleResult> srList = sampleResults.getSampleResults();
-					int annotationNum = -1;
-					for(SampleResult sr: srList) {
-						if (sr.getSpotId() != null) {
-							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_SPOT_ID.getValue(), sr.getSpotId(), citationNum);
-							annotationNum = UtilityDao.getAnnotationNum(MoonDBType.ANNOTATION_TYPE_SPOT_ID.getValue(), sr.getSpotId(), citationNum);
-							UtilityDao.saveSamplingFeatureAnnotation(sr.getSamplingFeatureNum(), annotationNum);
-						}
-						if (sr.getCalcAvge() != null) {
-							
-							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_CALCULATED_AVERAGE.getValue(), sr.getCalcAvge(), citationNum);
-
-						}
-						if (sr.getMineral() != null)
-							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_MINERAL.getValue(),sr.getMineral(), citationNum);
-						if (sr.getGrain() != null)
-							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_GRAIN.getValue(),sr.getGrain(), citationNum);
-						if (sr.getRimCore() != null)
-							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_RIM_OR_CORE.getValue(),sr.getRimCore(), citationNum);
-						if (sr.getMineralSize() != null)
-							UtilityDao.saveAnnotation(MoonDBType.ANNOTATION_TYPE_MINERAL_SIZE.getValue(),sr.getMineralSize(), citationNum);
-
-							
-
-						System.out.println("dataset: " + sr.getDatasetNum());
-						System.out.println("sf: " + sr.getSamplingFeatureNum());
-						System.out.println("spot: " + sr.getSpotId());
-
-						System.out.println("analysis comment: " + sr.getAnalysisComment());
-						System.out.println("avage: " + sr.getCalcAvge());
-						System.out.println("mineral: " + sr.getMineral());
-						System.out.println("grain: " + sr.getGrain());
-						System.out.println("rim/core: " + sr.getRimCore());
-						System.out.println("size: " + sr.getMineralSize());
-						List<ChemistryResult> crList = sr.getChemistryResults();
-						for(ChemistryResult cr: crList) {
-							int actionNum = UtilityDao.getActionNum(sr.getDatasetNum(), cr.getMethodNum(), MoonDBType.ACTION_TYPE_SPECIMEN_ANALYSIS.getValue());
-							UtilityDao.saveFeatureAction(sr.getSamplingFeatureNum(), actionNum);
-							int featureActionNum = UtilityDao.getFeatureActionNum(sr.getSamplingFeatureNum(), actionNum);
-							UtilityDao.saveResult(featureActionNum, cr.getVariableNum());
-							int resultNum = UtilityDao.getResultNum(featureActionNum, cr.getVariableNum());
-							UtilityDao.saveNumericData(resultNum, cr.getValue(), cr.getUnitNum());
-							System.out.println("action: " + actionNum);
-							System.out.println("method: " + cr.getMethodNum());
-							System.out.println("var: " + cr.getVariableNum());
-							System.out.println("unit: " + cr.getUnitNum());
-							System.out.println("value: " + cr.getValue());
-						}
-
-
-					}
-			
-					System.out.println("Step five finished");
-				}
+				saveData(workbook, "MINERALS", moondbNum, methods, datasets);
+				System.out.println("Step five finished");
 			} else if (XlsParser.isDataExist(workbook, "INCLUSIONS")) {
 				
-				 // loading InclusionAnalysis sampling features
-				 
-				SamplingFeatures InclusionAnalysisSFS = SamplingFeatureParser.parseSamplingFeature(workbook, "INCLUSIONS", moondbNum);
-				if (InclusionAnalysisSFS != null) {
-					UtilityDao.saveSamplingFeature(InclusionAnalysisSFS);
-				}
+				System.out.println("Step five begin");
+				saveData(workbook, "INCLUSIONS", moondbNum, methods, datasets);
+				System.out.println("Step five finished");
 			}
 			
 
