@@ -5,11 +5,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
 import org.moondb.dao.UtilityDao;
+import org.moondb.model.Dataset;
 import org.moondb.model.MoonDBType;
 import org.moondb.model.RowCellPos;
 import org.moondb.parser.XlsParser;
@@ -56,7 +59,7 @@ public class Echecker {
 					try {
 						Double.parseDouble(value);
 					} catch (NumberFormatException e) {
-						String content = "The value " + value + " at Row: " + i+1 + " Col: " + j+1 + " in the sheet " + sheetName + " is not numeric";
+						String content = "The value " + value + " at Row: " + (i+1) + " Col: " + (j+1) + " in the sheet " + sheetName + " is not numeric";
 						writeLog(bw, content);
 						result = false;
 					}
@@ -101,6 +104,41 @@ public class Echecker {
 		}			
 		return result;
 	}
+	
+	private static boolean tableTitleCheckPass (HSSFWorkbook workbook, BufferedWriter bw) throws IOException {
+		String content;
+		boolean result = true;
+		
+		HSSFSheet sheet = workbook.getSheet("TABLE_TITLES");
+		Iterator<Row> rowIterator = sheet.iterator();
+		while (rowIterator.hasNext()) {
+			Row row = rowIterator.next();
+			if(row.getRowNum()>= RowCellPos.TABLE_TITLES_ROW_B.getValue()) {
+				String tableNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
+				String tableTitle = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1)));
+				if (tableNum != null) {
+					if (tableNum.equals("-1")) {
+						result = true;
+						break;
+					}
+						
+					if (tableTitle == null) {
+						content = "Table title of number " + tableNum + " must be filled";
+						writeLog(bw, content);
+						result = false;
+					}
+				} else {
+					if (tableTitle == null) {
+						content = "Empty line at the row: " + row.getRowNum();
+						writeLog(bw, content);
+						result = false;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
 
 	public static void main(String[] args) throws IOException{
 		
@@ -141,6 +179,10 @@ public class Echecker {
 		        		content = "Row ending Symbol -1 check(TABLE_TITLES):   not found";
 		        		writeLog(bw, content);
 		        		result = false;
+		        	} else {
+		        		if (!tableTitleCheckPass(workbook, bw)) 
+		        			result = false;
+		        		
 		        	}
 		        	
 		        	//Sheet SAMPLES checking
@@ -180,7 +222,7 @@ public class Echecker {
 		        			}
 		        		}
 		        	} else {
-		        		content = "Row ending Symbol check(ROCKS):   Failed";
+		        		content = "Row ending Symbol check(ROCKS):   not found";
 		        		writeLog(bw, content);
 		        		result = false;
 		        	}
