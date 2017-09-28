@@ -243,6 +243,10 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 
+	public static Integer getFeatureOfInterestNum(String foitName,int foitTypeNum) {
+		String query = "SELECT feature_of_interest_cv_num FROM feature_of_interest_cv WHERE feature_of_interest_cv_name='" + foitName + "' AND feature_of_interest_type_num='" + foitTypeNum +"'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
 	/*
 	 * Save Data to MoonDB
 	 */
@@ -465,6 +469,22 @@ public class UtilityDao {
 	public static void saveDatasetResult (int datasetNum, int resultNum) {
 		if (!isDatasetResultExist(datasetNum, resultNum)) {
 			String query = "INSERT INTO dataset_result(dataset_num, result_num) values('" + datasetNum + "','" + resultNum + "')";
+			DatabaseUtil.update(query);
+		}
+	}
+	
+	public static boolean isFeatureOfInterestExist (int sfNum, int foitNum) {
+		String query = "SELECT COUNT(*) FROM feature_of_interest WHERE sampling_feature_num='" + sfNum + "' AND feature_of_interest_cv_num='" + foitNum + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count > 0)
+			return true;
+		else
+			return false;
+	}
+	
+	public static void saveFeatureOfInterest (int sfNum, int foitNum) {
+		if (!isFeatureOfInterestExist(sfNum, foitNum)) {
+			String query = "INSERT INTO feature_of_interest(sampling_feature_num,feature_of_interest_cv_num) values('" + sfNum + "','" + foitNum + "')";
 			DatabaseUtil.update(query);
 		}
 	}
