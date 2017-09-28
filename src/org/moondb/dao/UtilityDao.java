@@ -44,6 +44,15 @@ public class UtilityDao {
 			return false;
 	}
 	
+	public static boolean isActionExist(int actionTypeNum, int methodNum, String actionName) {
+		String query = "SELECT COUNT(*) FROM action WHERE method_num='" + methodNum + "' AND action_name='" + actionName + "' AND action_type_num='" + actionTypeNum +"'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count == 1)
+			return true;
+		else
+			return false;	
+	}
+	
 	
 	public static boolean isActionExist(int methodNum, int datasetNum, int actionTypeNum) {
 		String query = "SELECT COUNT(*) FROM action WHERE method_num='" + methodNum + "' AND dataset_num='" + datasetNum + "' AND action_type_num='" + actionTypeNum +"'";
@@ -171,6 +180,18 @@ public class UtilityDao {
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
+	
+	/*
+	 * Fit for Expedition Method
+	 */
+	public static Integer getMethodNum(String methodCode, int methodTypeNum) {
+		String query = "SELECT method_num FROM method WHERE method_code='" + methodCode + "' AND method_type_num='" + methodTypeNum + "'" ;
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	/*
+	 * Fit for Lab Analysis method
+	 */
 	public static Integer getMethodNum(String methodTech, Integer methodLabNum, String methodComment) {
 		String query = null;
 		if(methodComment == null) {
@@ -199,6 +220,11 @@ public class UtilityDao {
 	
 	public static Integer getActionNum(int datasetNum, int methodNum, int actionTypeNum) {
 		String query = "SELECT action_num FROM action WHERE dataset_num='" + datasetNum + "' AND method_num='" + methodNum +"' AND action_type_num='" + actionTypeNum + "'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	public static Integer getActionNum(String actionName, int methodNum, int actionTypeNum) {
+		String query = "SELECT action_num FROM action WHERE action_name='" + actionName + "' AND method_num='" + methodNum +"' AND action_type_num='" + actionTypeNum + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -243,7 +269,36 @@ public class UtilityDao {
 		}
 	}
 	
-	public static void saveSamplingFeature(SamplingFeatures samplingFeatures) {
+	public static void saveSamplingFeature (SamplingFeature samplingFeature) {
+		String sfCode = samplingFeature.getSamplingFeatureCode();
+		String sfName = samplingFeature.getSamplingFeatureName();
+		String sfParentCode = samplingFeature.getParentSamplingFeatureCode();
+		String sfComment = samplingFeature.getSamplingFeatureComment();
+		Integer sfTypeNum = samplingFeature.getSamplingFeatureTypeNum();
+		
+		String query;
+		if (!isSamplingFeatureExist(sfCode, sfTypeNum)) {
+			//save to table sampling_feature
+			if(sfComment == null) {
+				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"',"+sfComment+")";
+			} else {
+				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"','"+sfComment+"')";
+			}
+			DatabaseUtil.update(query);
+			
+			if(sfParentCode != null) {
+				System.out.println("parent:" + sfParentCode);
+				Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
+				Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
+				Integer relationshipTypeNum = 9;  //isSubSampleOf
+				//save to table related_feature
+				query = "INSERT INTO related_feature(sampling_feature_num,related_sampling_feature_num,relationship_type_num) VALUES('"+sfNum+"',"+sfParentNum+",'"+relationshipTypeNum+"')";
+				DatabaseUtil.update(query);
+			}
+		}
+	}
+	
+	public static void saveSamplingFeatures(SamplingFeatures samplingFeatures) {
 		List<SamplingFeature> sfs = samplingFeatures.getSamplingFeatures();
 
 		for(SamplingFeature sf: sfs) {
@@ -276,6 +331,20 @@ public class UtilityDao {
 			}			
 
 		}
+	}
+	
+	
+	public static void saveAction (Action action) {
+		String actionName = action.getActionName();
+		int actionTypeNum = action.getActionTypeNum();
+		int methodNum = action.getMethodNum();
+		
+		String query;
+		if (!isActionExist(actionTypeNum, methodNum, actionName)) {
+			//save to table action
+			query = "INSERT INTO action(action_type_num,method_num,action_name) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName +"')";
+			DatabaseUtil.update(query);
+		}	
 	}
 	
 	public static void saveActions(Actions actions) {
