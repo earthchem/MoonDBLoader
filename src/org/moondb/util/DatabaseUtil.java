@@ -141,6 +141,9 @@ public class DatabaseUtil {
     	return record;
     }
     
+    /*
+     * Fit for multiple statements
+     */
     public static String update(List<String> queries) {
     	String error = null;
     	Connection con = null;
@@ -172,6 +175,9 @@ public class DatabaseUtil {
     	return error;       	
     }
     
+    /*
+     * Fit for single statement
+     */
     public static String update(String query) {
     	String error = null;
     	Connection con = null;

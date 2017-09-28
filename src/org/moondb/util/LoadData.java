@@ -37,7 +37,7 @@ public class LoadData {
 	private static void saveData(HSSFWorkbook workbook, String sheetName, String moondbNum, Methods methods, Datasets datasets) {
 		SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, sheetName, moondbNum);
 		if (samplingFeatures != null) {
-			UtilityDao.saveSamplingFeature(samplingFeatures);
+			UtilityDao.saveSamplingFeatures(samplingFeatures);
 			
 			int[] variableNums = SampleDataParser.getVariableNums(workbook, sheetName);
 			int[] unitNums = SampleDataParser.getUnitNums(workbook, sheetName);
@@ -150,7 +150,7 @@ public class LoadData {
 			 */
 			SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, "SAMPLES", moondbNum);
 			if (samplingFeatures != null) {
-				UtilityDao.saveSamplingFeature(samplingFeatures);
+				UtilityDao.saveSamplingFeatures(samplingFeatures);
 				System.out.println("Step three finished");
 			}
 			

@@ -2,6 +2,7 @@ package org.moondb.model;
 
 //Specific row number and cell number in sheets of data template
 public enum RowCellPos {
+	
 	/*
 	 * the cell num holding end sign "-1" of the sheet SAMPLES
 	 */

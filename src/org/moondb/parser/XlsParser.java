@@ -18,8 +18,8 @@ public class XlsParser {
 	 */
 	public static boolean isRowEndingSymbolExist(HSSFWorkbook workbook,String sheetName) {
 		boolean result = false;
-		int beginRowNum;
-		int symbolCellNum;
+		int beginRowNum = -1;
+		int symbolCellNum = -1;
 		switch (sheetName) {
 		case "ROCKS":
 		case "MINERALS":
@@ -27,22 +27,37 @@ public class XlsParser {
 			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
 			symbolCellNum = 2;
 			break;
-		default:
+		case "SAMPLES":
+			beginRowNum = RowCellPos.SAMPLES_ROW_B.getValue();
 			symbolCellNum = 0;
-			beginRowNum = 0;
+			break;
+		case "TABLE_TITLES":
+			beginRowNum = RowCellPos.TABLE_TITLES_ROW_B.getValue();
+			symbolCellNum = 0;
+			break;
+		case "METHODS":
+			beginRowNum = RowCellPos.METHODS_ROW_B.getValue();
+			symbolCellNum = 0;
+			break;
 	}
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		for(int i=beginRowNum; i<=sheet.getLastRowNum();i++) {
+
 			HSSFRow row = sheet.getRow(i);
-			String value = getCellValueString(row.getCell(symbolCellNum));
+			if(row == null && i > beginRowNum) {
+				result = true;
+				break;
+			}
+			String value = XlsParser.formatString(getCellValueString(row.getCell(symbolCellNum)));
 			if (value != null) {
-				if(value.equals("-1.0") || value.equals("-1")) {
+				if(value.equals("-1")) {
 					result = true;
 					break;
 				} else {
 					
 				}
 			}
+			
 		}
 		return result;
 	}
@@ -73,12 +88,15 @@ public class XlsParser {
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		HSSFRow row = sheet.getRow(RowCellPos.VARIABLE_ROW_B.getValue());
 		for(int i=beginCellNum; i<=row.getLastCellNum(); i++) {
-			String value = getCellValueString(row.getCell(i));
+			String value = XlsParser.formatString(getCellValueString(row.getCell(i)));
 			if (value != null) {
-				if(value.equals("-1.0") || value.equals("-1")) {
+				if(value.equals("-1")) {
 					result = true;
 					break;
 				} 
+			} else {
+				result = false;
+				break;
 			}
 		}
 		return result;
@@ -93,10 +111,14 @@ public class XlsParser {
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		HSSFRow row = sheet.getRow(RowCellPos.DATA_ROW_B.getValue());
 		String value = XlsParser.formatString(getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_CELL_NUM.getValue())));
-		if(value.equals("-1")) {
-			return false;
+		if(value != null) {
+			if(value.equals("-1")) {
+				return false;
+			} else {
+				return true;
+			}
 		} else {
-			return true;
+			return false;
 		}
 	}
 	
@@ -154,9 +176,9 @@ public class XlsParser {
 		
 		String value;
 		for(int i=row.getFirstCellNum(); i<=row.getLastCellNum(); i++) {	
-			value = getCellValueString(row.getCell(i));
+			value = XlsParser.formatString(getCellValueString(row.getCell(i)));
 			if( value != null) {
-				if(value.equals("-1.0") || value.equals("-1")) {
+				if(value.equals("-1")) {
 					lastCellNum = i;
 					break;
 				}
@@ -218,6 +240,7 @@ public class XlsParser {
 	            break;
 	        case STRING: // String Value in Excel 
 	            result = cell.getStringCellValue().trim();
+	            if (result.isEmpty()) result = null;
 	            break;
 	        default:   //return other type as NULL
 	        	result = null;
