@@ -1,5 +1,6 @@
 package org.moondb.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.moondb.model.Action;
@@ -397,6 +398,75 @@ public class UtilityDao {
 			String query = "INSERT INTO dataset_result(dataset_num, result_num) values('" + datasetNum + "','" + resultNum + "')";
 			DatabaseUtil.update(query);
 		}
+	}
+	
+	public static void cleanMoonDB () {
+		List<String> queries = new ArrayList<String>();
+		String query = null;
+		
+		query = "DELETE FROM numeric_data";
+		queries.add(query);
+		query = "ALTER SEQUENCE numeric_data_numeric_data_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM text_data";
+		queries.add(query);
+		
+		query = "DELETE FROM dataset_result";
+		queries.add(query);
+		query = "ALTER SEQUENCE dataset_result_bridge_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM result";
+		queries.add(query);
+		query = "ALTER SEQUENCE result_result_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM feature_action";
+		queries.add(query);
+		query = "ALTER SEQUENCE feature_action_feature_action_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		
+		query = "DELETE FROM action";
+		queries.add(query);
+		query = "ALTER SEQUENCE action_action_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM sampling_feature_material";
+		queries.add(query);
+		
+		query = "DELETE FROM sampling_feature_taxonomic_classifier";
+		queries.add(query);
+		query = "ALTER SEQUENCE sampling_feature_taxonomic_classifier_bridge_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM related_feature";
+		queries.add(query);
+		query = "ALTER SEQUENCE related_feature_related_feature_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM sampling_feature_annotation";
+		queries.add(query);
+		query = "ALTER SEQUENCE sampling_feature_annotation_sampling_feature_annotation_num_seq RESTART WITH 1";
+		queries.add(query);
+
+		query = "DELETE FROM feature_of_interest";
+		queries.add(query);
+		query = "ALTER SEQUENCE feature_of_interest_feature_of_interest_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM sampling_feature";
+		queries.add(query);	
+		query = "ALTER SEQUENCE sampling_feature_sampling_feature_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM annotation";
+		queries.add(query);		
+		query = "ALTER SEQUENCE annotation_annotation_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		DatabaseUtil.update(queries);
 	}
 	
 }
