@@ -20,12 +20,10 @@ public class LoadRootSample {
 	public static void main(String[] args) throws IOException{
 		
 		int beginRowNum = 1;
-		int endColNum = 13;
 		System.out.println("clean time:" + LocalDateTime.now());
 		UtilityDao.cleanMoonDB();
 		System.out.println("starting time:" + LocalDateTime.now());
 		File file = new File("refdata\\rootspecimen.xls");
-		String fileName = file.getName();
 		FileInputStream inputStream = new FileInputStream(file);
 		
 		try {
@@ -41,9 +39,10 @@ public class LoadRootSample {
 				Action action = new Action();
 				Row row = rowIterator.next();
 				if(row.getRowNum()>= beginRowNum) {
+					//Save sampling feature to table sampling_feature
 					String sfCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
 					if (sfCode == null)
-						break;
+						break;          //data ending
 					
 					String sfName = sfCode;
 					String sfDescription = XlsParser.getCellValueString(row.getCell(1));
@@ -56,6 +55,8 @@ public class LoadRootSample {
 					UtilityDao.saveSamplingFeature(samplingFeature);
 					int sfNum = UtilityDao.getSamplingFeatureNum(sfCode, 1);
 					
+					
+					//save mission to table action
 					String missionCode = XlsParser.getCellValueString(row.getCell(2));
 					Integer methodNum = UtilityDao.getMethodNum(missionCode, 9);
 					action.setActionName(missionCode);
@@ -64,11 +65,10 @@ public class LoadRootSample {
 					UtilityDao.saveAction(action);
 					int actionNum = UtilityDao.getActionNum(missionCode, methodNum, 11);
 
+					//save feature action to table feature_action
 					UtilityDao.saveFeatureAction(sfNum, actionNum);
-					
-					//action = null;
-					//methodNum = null;
-					
+
+					//save landmark to table feature_of_interest
 					Integer foitNum = null;
 					String landMark = XlsParser.getCellValueString(row.getCell(3));
 					if (landMark != null) {
@@ -76,11 +76,14 @@ public class LoadRootSample {
 						UtilityDao.saveFeatureOfInterest(sfNum, foitNum);
 						
 					}
+					//save lunarStation to table feature_of_interest
 					String lunarStation = XlsParser.getCellValueString(row.getCell(4));
 					if (lunarStation != null) {
 						foitNum = UtilityDao.getFeatureOfInterestNum(lunarStation, 2);
 						UtilityDao.saveFeatureOfInterest(sfNum, foitNum);
 					}
+					
+					//save returnContainer to table feature_of_interest
 					String returnContaioner = XlsParser.getCellValueString(row.getCell(5));
 					if (returnContaioner != null) {
 						foitNum = UtilityDao.getFeatureOfInterestNum(returnContaioner, 3);
@@ -88,7 +91,7 @@ public class LoadRootSample {
 					}
 					
 					
-					
+					//save collection action to table action
 					String samplingTechnique = XlsParser.getCellValueString(row.getCell(6));
 					if (samplingTechnique != null) {
 						methodNum = UtilityDao.getMethodNum(samplingTechnique, 4);
@@ -102,19 +105,21 @@ public class LoadRootSample {
 						UtilityDao.saveFeatureAction(sfNum, actionNum);
 					}
 					
-					
+					//save sampling_feature_material
 					String materialCode = XlsParser.getCellValueString(row.getCell(7));
 					if (materialCode != null) {
 						Integer materialNum = UtilityDao.getMaterialNum(materialCode);
 						UtilityDao.saveSamplingFeatureMaterial(sfNum, materialNum);
 					}
 					
+					//save sampling_feature_taxonomic_classifier
 					String tcName = XlsParser.getCellValueString(row.getCell(8));
 					if (tcName != null) {
 						Integer tcNum = UtilityDao.getTaxonomicClassifierNum(tcName);
 						UtilityDao.saveSamplingFeatureTaxonomicClassifier(sfNum, tcNum);
 					}
 					
+					//save weight
 					String weight = XlsParser.getCellValueString(row.getCell(9));
 					if(weight != null) {
 						double value = Double.parseDouble(weight);
@@ -133,6 +138,7 @@ public class LoadRootSample {
 						UtilityDao.saveNumericData(resultNum, value, 56);
 					}
 					
+					//save pristinity
 					String pristinity = XlsParser.getCellValueString(row.getCell(10));
 					if(pristinity != null) {
 						double value = Double.parseDouble(pristinity);
@@ -151,6 +157,7 @@ public class LoadRootSample {
 						UtilityDao.saveNumericData(resultNum, value, 1);
 					}
 					
+					//save pristinity_date
 					String prinstinyDate = XlsParser.getCellValueString(row.getCell(11));
 					if(prinstinyDate != null) {
 						String actionName = sfCode + ": pristinity_date: Unknown";

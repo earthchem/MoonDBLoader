@@ -102,7 +102,7 @@ public class LoadData {
 					int actionNum = UtilityDao.getActionNum(sr.getDatasetNum(), cr.getMethodNum(), MoonDBType.ACTION_TYPE_SPECIMEN_ANALYSIS.getValue());
 					UtilityDao.saveFeatureAction(sr.getSamplingFeatureNum(), actionNum);
 					int featureActionNum = UtilityDao.getFeatureActionNum(sr.getSamplingFeatureNum(), actionNum);
-					UtilityDao.saveResult(featureActionNum, cr.getVariableNum());
+					UtilityDao.saveResult(featureActionNum, cr.getVariableNum(),MoonDBType.RESULT_TYPE_MEASUREMENT.getValue(),"numeric");
 					int resultNum = UtilityDao.getResultNum(featureActionNum, cr.getVariableNum());
 					
 					UtilityDao.saveDatasetResult(datasetNum, resultNum);
