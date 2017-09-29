@@ -65,8 +65,8 @@ public class LoadRootSample {
 
 					UtilityDao.saveFeatureAction(sfNum, actionNum);
 					
-					action = null;
-					methodNum = null;
+					//action = null;
+					//methodNum = null;
 					
 					Integer foitNum = null;
 					String landMark = XlsParser.getCellValueString(row.getCell(3));
@@ -87,7 +87,7 @@ public class LoadRootSample {
 					}
 					
 					
-					/*
+					
 					String samplingTechnique = XlsParser.getCellValueString(row.getCell(6));
 					if (samplingTechnique != null) {
 						methodNum = UtilityDao.getMethodNum(samplingTechnique, 4);
@@ -95,8 +95,13 @@ public class LoadRootSample {
 						action.setActionName(actionName);
 						action.setActionTypeNum(21);  //specimen collection
 						action.setMethodNum(methodNum);	
+						UtilityDao.saveAction(action);
+						actionNum = UtilityDao.getActionNum(actionName, methodNum, 21);
+
+						UtilityDao.saveFeatureAction(sfNum, actionNum);
 					}
 					
+					/*
 					String material = XlsParser.getCellValueString(row.getCell(7));
 					String subClass = XlsParser.getCellValueString(row.getCell(8));
 					
