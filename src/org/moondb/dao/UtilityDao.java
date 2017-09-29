@@ -244,6 +244,9 @@ public class UtilityDao {
 	}
 
 	public static Integer getFeatureOfInterestNum(String foitName,int foitTypeNum) {
+		if (foitName.contains("'")) 
+			foitName = foitName.replaceAll("'", "''");
+		
 		String query = "SELECT feature_of_interest_cv_num FROM feature_of_interest_cv WHERE feature_of_interest_cv_name='" + foitName + "' AND feature_of_interest_type_num='" + foitTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
