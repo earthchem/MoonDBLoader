@@ -3,6 +3,7 @@ package org.moondb.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -20,9 +21,9 @@ public class LoadRootSample {
 		
 		int beginRowNum = 1;
 		int endColNum = 13;
-		
+		System.out.println("clean time:" + LocalDateTime.now());
 		UtilityDao.cleanMoonDB();
-		
+		System.out.println("starting time:" + LocalDateTime.now());
 		File file = new File("refdata\\rootspecimen.xls");
 		String fileName = file.getName();
 		FileInputStream inputStream = new FileInputStream(file);
@@ -91,7 +92,7 @@ public class LoadRootSample {
 					String samplingTechnique = XlsParser.getCellValueString(row.getCell(6));
 					if (samplingTechnique != null) {
 						methodNum = UtilityDao.getMethodNum(samplingTechnique, 4);
-						String actionName = sfCode + ": " + samplingTechnique;
+						String actionName = sfCode + ": collection: " + samplingTechnique;
 						action.setActionName(actionName);
 						action.setActionTypeNum(21);  //specimen collection
 						action.setMethodNum(methodNum);	
@@ -101,21 +102,76 @@ public class LoadRootSample {
 						UtilityDao.saveFeatureAction(sfNum, actionNum);
 					}
 					
-					/*
-					String material = XlsParser.getCellValueString(row.getCell(7));
-					String subClass = XlsParser.getCellValueString(row.getCell(8));
+					
+					String materialCode = XlsParser.getCellValueString(row.getCell(7));
+					if (materialCode != null) {
+						Integer materialNum = UtilityDao.getMaterialNum(materialCode);
+						UtilityDao.saveSamplingFeatureMaterial(sfNum, materialNum);
+					}
+					
+					String tcName = XlsParser.getCellValueString(row.getCell(8));
+					if (tcName != null) {
+						Integer tcNum = UtilityDao.getTaxonomicClassifierNum(tcName);
+						UtilityDao.saveSamplingFeatureTaxonomicClassifier(sfNum, tcNum);
+					}
 					
 					String weight = XlsParser.getCellValueString(row.getCell(9));
+					if(weight != null) {
+						double value = Double.parseDouble(weight);
+						String actionName = sfCode + ": weight: Unknown";
+						action.setActionName(actionName);
+						action.setActionTypeNum(20);  //Specimen analysis
+						action.setMethodNum(19);	
+						UtilityDao.saveAction(action);
+						actionNum = UtilityDao.getActionNum(actionName, 19, 20);
+
+						UtilityDao.saveFeatureAction(sfNum, actionNum);
+						
+						int faNum = UtilityDao.getFeatureActionNum(sfNum, actionNum);
+						UtilityDao.saveResult(faNum, 556, 1, "numeric");
+						int resultNum = UtilityDao.getResultNum(faNum, 556);
+						UtilityDao.saveNumericData(resultNum, value, 56);
+					}
 					
-					String prinstiny = XlsParser.getCellValueString(row.getCell(10));
+					String pristinity = XlsParser.getCellValueString(row.getCell(10));
+					if(pristinity != null) {
+						double value = Double.parseDouble(pristinity);
+						String actionName = sfCode + ": pristinity: Unknown";
+						action.setActionName(actionName);
+						action.setActionTypeNum(17);  //Observation
+						action.setMethodNum(19);	
+						UtilityDao.saveAction(action);
+						actionNum = UtilityDao.getActionNum(actionName, 19, 17);
+
+						UtilityDao.saveFeatureAction(sfNum, actionNum);
+						
+						int faNum = UtilityDao.getFeatureActionNum(sfNum, actionNum);
+						UtilityDao.saveResult(faNum, 557, 4, "numeric");
+						int resultNum = UtilityDao.getResultNum(faNum, 557);
+						UtilityDao.saveNumericData(resultNum, value, 1);
+					}
 					
 					String prinstinyDate = XlsParser.getCellValueString(row.getCell(11));
+					if(prinstinyDate != null) {
+						String actionName = sfCode + ": pristinity_date: Unknown";
+						action.setActionName(actionName);
+						action.setActionTypeNum(13);  //Generic non-observation
+						action.setMethodNum(19);	
+						UtilityDao.saveAction(action);
+						actionNum = UtilityDao.getActionNum(actionName, 19, 13);
 
-					*/
+						UtilityDao.saveFeatureAction(sfNum, actionNum);
+						
+						int faNum = UtilityDao.getFeatureActionNum(sfNum, actionNum);
+						UtilityDao.saveResult(faNum, 558, 4, "text");
+						int resultNum = UtilityDao.getResultNum(faNum, 558);
+						UtilityDao.saveTextData(resultNum, prinstinyDate, "Value of pristinity_date");
+					}
+					
 					
 				}
 			}
-			
+			System.out.println("ending time:" + LocalDateTime.now());
 			workbook.close();
 		} finally {
 		

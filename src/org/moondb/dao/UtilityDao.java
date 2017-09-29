@@ -250,6 +250,28 @@ public class UtilityDao {
 		String query = "SELECT feature_of_interest_cv_num FROM feature_of_interest_cv WHERE feature_of_interest_cv_name='" + foitName + "' AND feature_of_interest_type_num='" + foitTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
+	
+	public static Integer getMaterialNum (String materialCode) {
+		String query = "SELECT material_num FROM material WHERE material_code='" + materialCode  +"'";
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+	
+	public static Integer getTaxonomicClassifierNum (String tcName) {
+		String query = "SELECT taxonomic_classifier_num FROM taxonomic_classifier WHERE taxonomic_classifier_name='" + tcName  +"'";
+		//System.out.println(query);
+		return (Integer)DatabaseUtil.getUniqueResult(query);
+	}
+		
+	public static void saveSamplingFeatureTaxonomicClassifier(int sfNum, int tcNum) {
+		String query = "INSERT INTO sampling_feature_taxonomic_classifier(sampling_feature_num,taxonomic_classifier_num) VALUES('"+sfNum+"','" + tcNum +"')";
+		DatabaseUtil.update(query);
+	}
+	
+	public static void saveSamplingFeatureMaterial(int sfNum, int materialNum) {
+		String query = "INSERT INTO sampling_feature_material(sampling_feature_num,material_num) VALUES('"+sfNum+"','" + materialNum +"')";
+		DatabaseUtil.update(query);
+	}
+	
 	/*
 	 * Save Data to MoonDB
 	 */
@@ -380,11 +402,11 @@ public class UtilityDao {
 		}
 	}
 	
-	public static void saveResult(int featureActionNum, int variableNum) {
-		int resultTypeNum = MoonDBType.RESULT_TYPE_MEASUREMENT.getValue();
+	public static void saveResult(int featureActionNum, int variableNum, int resultTypeNum, String valueType) {
+		//int resultTypeNum = MoonDBType.RESULT_TYPE_MEASUREMENT.getValue();
 		int processingLevelNum = MoonDBType.PROCESSING_LEVEL_RAW_DATA.getValue();
 		int valueCount = 1;
-		String valueType = "numeric";
+		//String valueType = "numeric";
 		if (!isResultExist(featureActionNum, variableNum)) {
 			String query = "INSERT INTO result(feature_action_num, result_type_num, variable_num, processing_level_num, value_count, value_type) values('" + featureActionNum + "','" + resultTypeNum + "','" + variableNum + "','" + processingLevelNum + "','" + valueCount + "','" + valueType + "')";
 			DatabaseUtil.update(query);
@@ -396,6 +418,11 @@ public class UtilityDao {
 			String query = "INSERT INTO numeric_data(result_num, value_meas, unit_num) values('" + resultNum + "','" + value + "','" + unitNum + "')";
 			DatabaseUtil.update(query);
 		}
+	}
+	
+	public static void saveTextData (int resultNum, String value, String note) {
+		String query = "INSERT INTO text_data(result_num, text_data_value, text_data_note) values('" + resultNum + "','" + value + "','" + note + "')";
+		DatabaseUtil.update(query);
 	}
 	
 	public static void saveMethods(Methods methods) {
