@@ -8,7 +8,7 @@ package org.moondb.model;
 public class Dataset {
 	private String datasetType;
 	private String datasetTitle;
-	private String tableNum;  //used for creating dataset_code
+	private String tableCode;  //used for creating dataset_code
 	private String datasetCode;
 	private int citationNum;
 	
@@ -29,12 +29,12 @@ public class Dataset {
 		this.datasetTitle = datasetTitle;
 	}
 	
-	public String getTableNum() {
-		return tableNum;
+	public String getTableCode() {
+		return tableCode;
 	}
 	
-	public void setTableNum(String tableNum) {
-		this.tableNum = tableNum;
+	public void setTableCode(String tableCode) {
+		this.tableCode = tableCode;
 	}
 	
 	public String getDatasetCode() {
@@ -52,4 +52,5 @@ public class Dataset {
 	public void setCitationNum(int citationNum) {
 		this.citationNum = citationNum;
 	}
+
 }

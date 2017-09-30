@@ -24,19 +24,19 @@ public class XlsParser {
 		case "ROCKS":
 		case "MINERALS":
 		case "INCLUSIONS":
-			beginRowNum = RowCellPos.DATA_ROW_B.getValue();
+			beginRowNum = RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue();
 			symbolCellNum = 2;
 			break;
 		case "SAMPLES":
-			beginRowNum = RowCellPos.SAMPLES_ROW_B.getValue();
+			beginRowNum = RowCellPos.SAMPLES_BEGIN_ROW_NUM.getValue();
 			symbolCellNum = 0;
 			break;
 		case "TABLE_TITLES":
-			beginRowNum = RowCellPos.TABLE_TITLES_ROW_B.getValue();
+			beginRowNum = RowCellPos.TABLE_TITLES_BEGIN_ROW_NUM.getValue();
 			symbolCellNum = 0;
 			break;
 		case "METHODS":
-			beginRowNum = RowCellPos.METHODS_ROW_B.getValue();
+			beginRowNum = RowCellPos.METHODS_BEGIN_ROW_NUM.getValue();
 			symbolCellNum = 0;
 			break;
 	}
@@ -86,7 +86,7 @@ public class XlsParser {
 
 
 		HSSFSheet sheet = workbook.getSheet(sheetName);
-		HSSFRow row = sheet.getRow(RowCellPos.VARIABLE_ROW_B.getValue());
+		HSSFRow row = sheet.getRow(RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 		for(int i=beginCellNum; i<=row.getLastCellNum(); i++) {
 			String value = XlsParser.formatString(getCellValueString(row.getCell(i)));
 			if (value != null) {
@@ -109,8 +109,8 @@ public class XlsParser {
 	 */
 	public static boolean isDataExist(HSSFWorkbook workbook,String sheetName) {
 		HSSFSheet sheet = workbook.getSheet(sheetName);
-		HSSFRow row = sheet.getRow(RowCellPos.DATA_ROW_B.getValue());
-		String value = XlsParser.formatString(getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_CELL_NUM.getValue())));
+		HSSFRow row = sheet.getRow(RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue());
+		String value = XlsParser.formatString(getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue())));
 		if(value != null) {
 			if(value.equals("-1")) {
 				return false;
@@ -126,7 +126,7 @@ public class XlsParser {
 		int rowNum = -1;
 		switch (cvName) {
 		case "Variable":
-			rowNum = RowCellPos.VARIABLE_ROW_B.getValue();
+			rowNum = RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue();
 			break;
 		case "Unit":
 			rowNum = RowCellPos.UNIT_ROW_B.getValue();
@@ -154,7 +154,7 @@ public class XlsParser {
 				beginCellNum = 0;
 		}
 		
-		int lastCellNum = getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
+		int lastCellNum = getLastColNum(sheet,RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
         int dataEntrySize = lastCellNum-beginCellNum;
 
         String[] result = new String[dataEntrySize];
@@ -168,39 +168,55 @@ public class XlsParser {
 	
 	/*
 	 * 
-	 * Return the last cell number of the specific row in the sheet by the ending character
+	 * Return the last column number of the specific row in the sheet if the '-1' or null occurred in the assigned cell
 	 */
-	public static Integer getLastCellNum(HSSFSheet sheet, Integer rowNum) {
-		Integer lastCellNum = null;
+	public static Integer getLastColNum(HSSFSheet sheet, Integer rowNum) {
+		Integer lastColNum = null;
+		Integer beginColNum = null;
+		
 		HSSFRow row = sheet.getRow(rowNum);
 		
+		switch (sheet.getSheetName()) {
+		case "ROCKS":
+			beginColNum = RowCellPos.ROCKS_VMUCD_CELL_B.getValue();
+			break;
+		case "MINERALS":
+			beginColNum = RowCellPos.MINERALS_VMUCD_CELL_B.getValue();
+			break;
+		case "INCLUSIONS":
+			beginColNum = RowCellPos.INCLUSIONS_VMUCD_CELL_B.getValue();
+			break;
+		default:
+			beginColNum = 0;
+		}
 		String value;
-		for(int i=row.getFirstCellNum(); i<=row.getLastCellNum(); i++) {	
+		for(int i= beginColNum; i<=row.getLastCellNum(); i++) {	
 			value = XlsParser.formatString(getCellValueString(row.getCell(i)));
-			if( value != null) {
-				if(value.equals("-1")) {
-					lastCellNum = i;
-					break;
-				}
+			if( value == null || value.equals("-1")) {
+				lastColNum = i;
+				break;
 			}
 		}
-		return lastCellNum;
+		return lastColNum;
 	}
 	
 	/*
 	 * 
-	 * Return the last row number in the sheet by the ending character
+	 * Return the last row number if the '-1' or null occurred in the assigned cell
 	 */
-	public static Integer getLastRowNum(HSSFWorkbook workbook, String sheetName) {
+	public static Integer getLastRowNum(HSSFWorkbook workbook, String sheetName, int beginRowNum, int endSymbolColNum) {
 		Integer lastRowNum = null;
 		
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		Iterator<Row> rowIterator = sheet.iterator();
 		while (rowIterator.hasNext()) {
 			Row row = rowIterator.next();
-			if (row.getRowNum() >= RowCellPos.DATA_ROW_B.getValue()) {
-				String endCellNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_CELL_NUM.getValue())));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
-				if (endCellNum.equals("-1")) {    //data ending at the row
+			//if (row.getRowNum() >= RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue()) {
+			if (row.getRowNum() >= beginRowNum) {
+				//String endColNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue())));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS
+				String endColNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(endSymbolColNum)));
+
+				if (endColNum == null || endColNum.equals("-1")) {
 					lastRowNum = row.getRowNum();
 					break;
 				}
@@ -227,28 +243,22 @@ public class XlsParser {
 	
 	/*
 	 *convert value of cell to String
+	 *null will be returned if the cell type is not NUMERIC or STRING
 	 */
 	public static String getCellValueString(Cell cell) {  
 	    String result = null;
 	    if (cell != null) {
 		    switch (cell.getCellTypeEnum()) {
-		    case BOOLEAN:
-		    	result = Boolean.toString(cell.getBooleanCellValue()).trim();
 	        case NUMERIC: // numeric value in Excel
-	            //result = Double.toString(cell.getNumericCellValue()).trim();
 	        	result = String.valueOf(cell.getNumericCellValue());
 	            break;
 	        case STRING: // String Value in Excel 
 	            result = cell.getStringCellValue().trim();
-	            if (result.isEmpty()) result = null;
 	            break;
-	        default:   //return other type as NULL
-	        	result = null;
-	            //throw new RuntimeException("There is no support for this type of cell");                        
+			default:
+				break;
 		    }	    	
-	    } else {
-	    	result = null;
-	    }
+	    } 
 
 	    return result;
 	}

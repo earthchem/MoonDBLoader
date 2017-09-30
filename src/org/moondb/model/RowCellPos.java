@@ -4,34 +4,48 @@ package org.moondb.model;
 public enum RowCellPos {
 	
 	/*
-	 * the cell num holding end sign "-1" of the sheet SAMPLES
+	 * indicate the data is ending if the cell holding end sign "-1" or null 
+	 * corresponding the column 'SAMPLE NMAE' in the sheet SAMPLES
 	 */
-	SAMPLES_DATA_END_CELL_NUM(0),
+	SAMPLES_DATA_END_SYMBOL_COL_NUM(1),
 	/*
-	 * the cell num holding end sign "-1" of the sheet ROCKS, MINERALS and INCLUSIONS
+	 * indicate the data is ending if the cell holding end sign "-1" or null 
+	 * corresponding the column 'SAMPLE NMAE' in the sheet ROCKS, MINERALS and INCLUSIONS
 	 */
-	RMI_DATA_END_CELL_NUM(2),
+	RMI_DATA_END_SYMBOL_COL_NUM(2),
 
 	/*
 	 * Beginning row number in sheet TABLE_TITLES
 	 */
-	TABLE_TITLES_ROW_B(1),             
+	TABLE_TITLES_BEGIN_ROW_NUM(1),    
+	/*
+	 * indicate the data is ending if the cell holding end sign "-1" or null 
+	 * corresponding the column 'Number of TABLE_IN_REF' in the sheet TABLE_TITLES
+	 */
+	TABLE_TILES_END_SYMBOL_COL_NUM(0),
+	
 	/*
 	 * Beginning row number in sheet SAMPLES
 	 */
-	SAMPLES_ROW_B(2),	        
+	SAMPLES_BEGIN_ROW_NUM(2),	        
 	/*
 	 * Beginning row number in sheet METHODS
 	 */
-	METHODS_ROW_B(1),	 
+	METHODS_BEGIN_ROW_NUM(1),	 
 	/*
 	 * Beginning row number of variable in sheet ROCKS, MINERALS and INCLUSIONS
 	 */
-	VARIABLE_ROW_B(2),    
+	/*
+	 * indicate the data is ending if the cell holding end sign "-1" or null 
+	 * corresponding the column 'METHOD_NUM' in the sheet METHODS
+	 */
+	METHODS_END_SYMBOL_COL_NUM(0),
+	
+	VARIABLE_BEGIN_ROW_NUM(2),    
 	/*
 	 * Beginning row number of method in sheet ROCKS, MINERALS and INCLUSIONS
 	 */
-	METHOD_CODE_ROW_B(3),  
+	METHOD_CODE_BEGIN_ROW_NUM(3),  
 	/*
 	 * Beginning row number of unit in sheet ROCKS, MINERALS and INCLUSIONS
 	 */
@@ -63,7 +77,7 @@ public enum RowCellPos {
 	/*
 	 * Beginning row number of data in sheet ROCKS, MINERALS and INCLUSIONS
 	 */
-	DATA_ROW_B(8),         
+	RMI_DATA_BEGIN_ROW_NUM(8),         
 	
 	/*
 	 * Column number of SPOT_ID in sheet MINERALS and INCLUSIONS

@@ -12,4 +12,8 @@ public class SamplingFeatures {
 	public void setSamplingFeatures(List<SamplingFeature> samplingFeatures) {
 		this.samplingFeatures = samplingFeatures;
 	}
+	
+	public Integer getCounts () {
+		return samplingFeatures.size();
+	}
 }

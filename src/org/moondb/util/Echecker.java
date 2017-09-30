@@ -12,7 +12,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.moondb.dao.UtilityDao;
-import org.moondb.model.Dataset;
 import org.moondb.model.MoonDBType;
 import org.moondb.model.RowCellPos;
 import org.moondb.parser.XlsParser;
@@ -28,8 +27,9 @@ public class Echecker {
 	private static boolean valueCheckPass (HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
 		String value = null;
 		boolean result = true;
-		Integer rowStart = RowCellPos.DATA_ROW_B.getValue();
-		Integer rowEnd = XlsParser.getLastRowNum(workbook, sheetName);
+		Integer rowStart = RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue();
+		Integer endSymbolColNum = RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue();
+		Integer rowEnd = XlsParser.getLastRowNum(workbook, sheetName, rowStart, endSymbolColNum);
 		Integer colStart = null;
 
 		
@@ -44,7 +44,7 @@ public class Echecker {
 		
 		for (int i=rowStart; i<rowEnd; i++) {
 			HSSFRow row = workbook.getSheet(sheetName).getRow(i);
-			Integer colEnd = XlsParser.getLastCellNum(workbook.getSheet(sheetName), RowCellPos.VARIABLE_ROW_B.getValue());
+			Integer colEnd = XlsParser.getLastColNum(workbook.getSheet(sheetName), RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 			for(int j=colStart; j<colEnd; j++) {
 				value = XlsParser.getCellValueString(row.getCell(j));
 				if(value != null) {     //skip null value
@@ -113,7 +113,7 @@ public class Echecker {
 		Iterator<Row> rowIterator = sheet.iterator();
 		while (rowIterator.hasNext()) {
 			Row row = rowIterator.next();
-			if(row.getRowNum()>= RowCellPos.TABLE_TITLES_ROW_B.getValue()) {
+			if(row.getRowNum()>= RowCellPos.TABLE_TITLES_BEGIN_ROW_NUM.getValue()) {
 				String tableNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
 				String tableTitle = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1)));
 				if (tableNum != null) {

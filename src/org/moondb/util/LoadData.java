@@ -25,7 +25,7 @@ import org.moondb.parser.DatasetParser;
 import org.moondb.parser.MethodParser;
 import org.moondb.parser.SampleDataParser;
 import org.moondb.parser.SamplingFeatureParser;
-import org.moondb.parser.XlsParser;
+
 public class LoadData {
 	
 	private static void saveAnnotation(int annotationTypeNum, String annotationText, int citationNum, int samplingFeatureNum) {
@@ -34,17 +34,19 @@ public class LoadData {
 		UtilityDao.saveSamplingFeatureAnnotation(samplingFeatureNum, annotationNum);
 	}
 
-	private static void saveData(HSSFWorkbook workbook, String sheetName, String moondbNum, Methods methods, Datasets datasets) {
-		SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, sheetName, moondbNum);
-		if (samplingFeatures != null) {
+	private static Integer saveData(HSSFWorkbook workbook, String sheetName, String moondbNum, Methods methods, Datasets datasets, Integer baseNum) {
+		int recordCounts = 0;
+		SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, sheetName, moondbNum, baseNum);
+		if (samplingFeatures.getCounts() != 0) {
 			UtilityDao.saveSamplingFeatures(samplingFeatures);
-			
+			recordCounts = samplingFeatures.getCounts();
+			System.out.println("recortCounts" + recordCounts);
 			int[] variableNums = SampleDataParser.getVariableNums(workbook, sheetName);
 			int[] unitNums = SampleDataParser.getUnitNums(workbook, sheetName);
 			int[] methodNums = SampleDataParser.getMethodNums(workbook, sheetName,methods);
 
 			int citationNum = UtilityDao.getCitationNum(moondbNum);
-			SampleResults sampleResults = SampleDataParser.parseSampleData(workbook, sheetName, datasets, moondbNum, variableNums,unitNums,methodNums);
+			SampleResults sampleResults = SampleDataParser.parseSampleData(workbook, sheetName, datasets, moondbNum, variableNums,unitNums,methodNums,baseNum);
 			List<SampleResult> srList = sampleResults.getSampleResults();
 					
 			for(SampleResult sr: srList) {
@@ -110,12 +112,14 @@ public class LoadData {
 				}
 			}	
 		}
+		
+		return recordCounts;
 	}
 	
 	
 	
 	public static void main(String[] args) throws IOException{
-		File file = new File("data\\MoonDB 00016.xls");
+		File file = new File("data\\MoonDB 0626.xls");
 		String fileName = file.getName();
 		FileInputStream inputStream = new FileInputStream(file);
     	String moondbNum = fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf("."));
@@ -132,6 +136,7 @@ public class LoadData {
 			Datasets datasets = DatasetParser.parseDataset(workbook, moondbNum);
 			if (datasets != null) {
 				UtilityDao.saveDatasets(datasets);
+				System.out.println("Step One finished");
 			}
 			
 			/*
@@ -148,7 +153,7 @@ public class LoadData {
 			 * Step three: Loading samping_feature from sheet SAMPLES
 			 * Save data to table sampling_feature and related_feature
 			 */
-			SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, "SAMPLES", moondbNum);
+			SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, "SAMPLES", moondbNum, null);
 			if (samplingFeatures != null) {
 				UtilityDao.saveSamplingFeatures(samplingFeatures);
 				System.out.println("Step three finished");
@@ -168,23 +173,9 @@ public class LoadData {
 			/*
 			 * Step Five: Creating analysis sampling features(sub sampling features)
 			 */
-			
-			if (XlsParser.isDataExist(workbook, "ROCKS")) {	 
-				System.out.println("Step five begin");
-				saveData(workbook, "ROCKS", moondbNum, methods, datasets);
-				System.out.println("Step five finished");
-				
-			} else if (XlsParser.isDataExist(workbook, "MINERALS")) {
-				System.out.println("Step five begin");
-				saveData(workbook, "MINERALS", moondbNum, methods, datasets);
-				System.out.println("Step five finished");
-			} else if (XlsParser.isDataExist(workbook, "INCLUSIONS")) {
-				
-				System.out.println("Step five begin");
-				saveData(workbook, "INCLUSIONS", moondbNum, methods, datasets);
-				System.out.println("Step five finished");
-			}
-			
+			int countOfRocks = saveData(workbook, "ROCKS", moondbNum, methods, datasets, 0);
+			int countOfMinerals = saveData(workbook, "MINERALS", moondbNum, methods, datasets,countOfRocks);
+			saveData(workbook, "INCLUSIONS", moondbNum, methods, datasets, countOfRocks + countOfMinerals);
 
 			workbook.close();
 		} finally {

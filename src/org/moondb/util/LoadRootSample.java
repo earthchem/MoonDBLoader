@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -34,10 +33,12 @@ public class LoadRootSample {
 
 
 			while (rowIterator.hasNext()) {
-
+				
+				
 				SamplingFeature samplingFeature = new SamplingFeature();
 				Action action = new Action();
 				Row row = rowIterator.next();
+				System.out.println("cur row:" + row.getRowNum());
 				if(row.getRowNum()>= beginRowNum) {
 					//Save sampling feature to table sampling_feature
 					String sfCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
@@ -174,7 +175,7 @@ public class LoadRootSample {
 						int resultNum = UtilityDao.getResultNum(faNum, 558);
 						UtilityDao.saveTextData(resultNum, prinstinyDate, "Value of pristinity_date");
 					}
-					
+
 					
 				}
 			}

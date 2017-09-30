@@ -1,9 +1,9 @@
 package org.moondb.parser;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -45,7 +45,7 @@ public class SampleDataParser {
 		/*
 		 * The ending cell number of data
 		 */
-		int lastCellNum = XlsParser.getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
+		int lastCellNum = XlsParser.getLastColNum(sheet,RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 		/*
 		 * The size of array for variableNums,methodNums,unitNums and chemicalData
 		 */
@@ -55,7 +55,7 @@ public class SampleDataParser {
          */
 		int[] variableNums = new int[dataEntrySize];
 		
-		Row row = sheet.getRow(RowCellPos.VARIABLE_ROW_B.getValue());
+		Row row = sheet.getRow(RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 		/*
 		 * Set variableNums
 		 */
@@ -79,7 +79,7 @@ public class SampleDataParser {
 		/*
 		 * The ending cell number of data
 		 */
-		int lastCellNum = XlsParser.getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
+		int lastCellNum = XlsParser.getLastColNum(sheet,RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 		/*
 		 * The size of array for variableNums,methodNums,unitNums and chemicalData
 		 */
@@ -109,7 +109,7 @@ public class SampleDataParser {
 		/*
 		 * The ending cell number of data
 		 */
-		int lastCellNum = XlsParser.getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
+		int lastCellNum = XlsParser.getLastColNum(sheet,RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 		/*
 		 * The size of array for variableNums,methodNums,unitNums and chemicalData
 		 */
@@ -119,7 +119,7 @@ public class SampleDataParser {
          */
 		int[] methodNums = new int[dataEntrySize];
 		
-		Row row = sheet.getRow(RowCellPos.METHOD_CODE_ROW_B.getValue());
+		Row row = sheet.getRow(RowCellPos.METHOD_CODE_BEGIN_ROW_NUM.getValue());
 		
 		List<Method> methodList = methods.getMethods();
 		for(int i=beginCellNum; i<lastCellNum; i++) {
@@ -136,7 +136,7 @@ public class SampleDataParser {
 		return methodNums;
 	}
 	
-	public static SampleResults parseSampleData (HSSFWorkbook workbook, String sheetName, Datasets datasets, String moonDBNum, int[] variableNums, int[] unitNums, int[] methodNums) {
+	public static SampleResults parseSampleData (HSSFWorkbook workbook, String sheetName, Datasets datasets, String moonDBNum, int[] variableNums, int[] unitNums, int[] methodNums, int baseNum) {
 		SampleResults sampleResults = new SampleResults();
 		
 
@@ -146,178 +146,152 @@ public class SampleDataParser {
 		Integer spotIDCellNum = null;
 		Integer replicateCellNum = null;
 		Integer avgeCellNum = null;
-		Integer sfTypeNum = null;
-		String sfTypeSign = null;
+		Integer sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue();
 		
 		switch (sheetName){
 		case "ROCKS":
-			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_ROCKANALYSIS.getValue();  //RockAnalysis sampling feature
-			sfTypeSign = "R";
 			replicateCellNum = RowCellPos.ROCKS_REPLICATE_COL_NUM.getValue();
 			avgeCellNum = RowCellPos.ROCKS_AVGE_COL_NUM.getValue();
 			break;
 		case "MINERALS":
 			spotIDCellNum = RowCellPos.MINERALS_SPOTID_COL_NUM.getValue();
-			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_MINERALANALYSIS.getValue();  //MineralAnalysis sampling feature
-			sfTypeSign = "M";
 			replicateCellNum = RowCellPos.MINERALS_REPLICATE_COL_NUM.getValue();
 			avgeCellNum = RowCellPos.MINERALS_AVGE_COL_NUM.getValue();
 			break;
 		case "INCLUSIONS":
 			spotIDCellNum = RowCellPos.INCLUSIONS_SPOTID_COL_NUM.getValue();
-			sfTypeSign = "I";
-			sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_INCLUSIONANALYSIS.getValue();  //InclusionAnalysis sampling feature
 			replicateCellNum = RowCellPos.INCLUSIONS_REPLICATE_COL_NUM.getValue();
 			avgeCellNum = RowCellPos.INCLUSIONS_AVGE_COL_NUM.getValue();
 			break;
 	}
-		/*
-		 * The ending cell number of data
-		 */
-		int lastCellNum = XlsParser.getLastCellNum(sheet,RowCellPos.VARIABLE_ROW_B.getValue());
-	           
 
-		//Get iterator to all the rows in current sheet
-		Iterator<Row> rowIterator = sheet.iterator();
+		//The ending cell number of data
+		int lastCellNum = XlsParser.getLastColNum(sheet,RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
+	           
 		ArrayList<SampleResult> sampleResultList = new ArrayList<SampleResult>();
-	
-		while (rowIterator.hasNext()) {
-			
-			Row row = rowIterator.next();
-		    if (row.getRowNum() >= RowCellPos.DATA_ROW_B.getValue()) {  //reading analysis results
-		    	SampleResult sampleResult = new SampleResult();
-				String endCellNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_CELL_NUM.getValue())));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
-				if (endCellNum.equals("-1")) {    //data ending at the row
+		int beginRowNum = RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue();
+		int endSymbolColNum = RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue();
+		int lastRowNum = XlsParser.getLastRowNum(workbook, sheetName,beginRowNum,endSymbolColNum);
+		
+		for(int i = beginRowNum; i < lastRowNum; i++) {
+			HSSFRow row = sheet.getRow(i);
+	    	SampleResult sampleResult = new SampleResult();
+	    	int analysisNum = i - beginRowNum + 1 + baseNum;
+
+	    	//Set datasetNum
+			String tabInRef = XlsParser.getCellValueString(row.getCell(1));    //TAB_IN_REF in sheet ROCKS, MINERALS and INCLUSIONS
+			Integer datasetNum = null;
+			List<Dataset> dsList = datasets.getDatasets();
+			for(Dataset ds : dsList) {
+
+				if(tabInRef.equals(ds.getTableCode())) {
+					datasetNum = UtilityDao.getDatasetNum(ds.getDatasetCode());
+					
 					break;
 				}
-
-				/*
-				 * Set datasetNum
-				 */
-				String tabInRef = XlsParser.getCellValueString(row.getCell(1));    //TAB_IN_REF in sheet ROCKS, MINERALS and INCLUSIONS
-				Integer datasetNum = null;
-				List<Dataset> dsList = datasets.getDatasets();
-				for(Dataset ds : dsList) {
-
-					if(tabInRef.equals(ds.getTableNum())) {
-						datasetNum = UtilityDao.getDatasetNum(ds.getDatasetCode());
-						
-						break;
-					}
-				}
-				sampleResult.setDatasetNum(datasetNum);
-				/*
-				 * Set samplingFeatureNum
-				 */
-				String resultNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS 
-				String sampleName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2)));  // SAMPLE NAME in sheet ROCKS
-				String sfCode = sampleName + "#" + sfTypeSign + resultNum + "#" + moonDBNum;
-				
-				Integer samplingFeatureNum = UtilityDao.getSamplingFeatureNum(sfCode,sfTypeNum);;
-
-				sampleResult.setSamplingFeatureNum(samplingFeatureNum);
-				/*
-				 * Set analysisComment
-				 */
-				String analysisComment = null;
-				if(sheetName != "INCLUSIONS") {
-					analysisComment = XlsParser.getCellValueString(row.getCell(3)); //ANALYSIS COMMENT in sheet ROCKS
-				}
-				sampleResult.setAnalysisComment(analysisComment);
-				
-				/*
-				 * Set numberOfReplicates
-				 */
-				String numberOfReplicates = XlsParser.getCellValueString(row.getCell(replicateCellNum)); 
-				sampleResult.setReplicatesCount(numberOfReplicates);
-				
-				/*
-				 * set calcAvge
-				 */
-				String calcAvge = XlsParser.getCellValueString(row.getCell(avgeCellNum)); 
-				sampleResult.setCalcAvge(calcAvge);
-				
-				if (sheetName == "ROCKS") {
-					String material = XlsParser.getCellValueString(row.getCell(6)); //MATERIAL in sheet ROCKS
-					sampleResult.setMaterial(material);
-				}
-				
-				if (sheetName == "MINERALS") {
-					String mineral = XlsParser.getCellValueString(row.getCell(7));
-					sampleResult.setMineral(mineral);
-					
-					String grain = XlsParser.getCellValueString(row.getCell(8));
-					sampleResult.setGrain(grain);
-					
-					String rimCore = XlsParser.getCellValueString(row.getCell(9));
-					sampleResult.setRimCore(rimCore);
-					
-					String minerialSize = XlsParser.getCellValueString(row.getCell(10));
-					sampleResult.setMineralSize(minerialSize);					
-					
-					String spotId = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
-					sampleResult.setSpotId(spotId);
-				}
-				
-				if (sheetName == "INCLUSIONS") {
-					String spotId = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
-					sampleResult.setSpotId(spotId);
-					
-					String inclusionType = XlsParser.getCellValueString(row.getCell(6));
-					sampleResult.setInclusionType(inclusionType);
-					
-					String inclusionMineral = XlsParser.getCellValueString(row.getCell(7));
-					sampleResult.setInclusionMineral(inclusionMineral);
-					
-					String hostMineral = XlsParser.getCellValueString(row.getCell(8));
-					sampleResult.setHostMineral(hostMineral);
-					
-					String hostRock = XlsParser.getCellValueString(row.getCell(9));
-					sampleResult.setHostRock(hostRock);
-					
-					String inclusionSize = XlsParser.getCellValueString(row.getCell(10));
-					sampleResult.setInclusionSize(inclusionSize);
-					
-					String rimCore = XlsParser.getCellValueString(row.getCell(11));
-					sampleResult.setRimCore(rimCore);
-					
-					String heated = XlsParser.getCellValueString(row.getCell(12));
-					sampleResult.setHeated(heated);
-					
-					String temperature = XlsParser.getCellValueString(row.getCell(13));
-					sampleResult.setTemperature(temperature);
-				}
-				/*
-				 * Reading chemical data
-				 */
-
-				
-				ArrayList<ChemistryResult> chemistryResultList = new ArrayList<ChemistryResult>();
-				for(int i=beginCellNum; i<lastCellNum; i++) {
-					ChemistryResult chemistryResult = new ChemistryResult();
-					String value = XlsParser.getCellValueString(row.getCell(i));
-					//System.out.println("value is:" + value);
-					if(value != null) {     //skip null value
-						if(value.contains(",")) {
-							value = value.substring(0, value.indexOf(',')).trim();							
-						}
-						if(value.contains(".")) {
-							if (value.indexOf('.') == 0) {
-								value = "0" + value;
-							}
-						}
-						chemistryResult.setMethodNum(methodNums[i-beginCellNum]);
-						chemistryResult.setUnitNum(unitNums[i-beginCellNum]);
-						chemistryResult.setVariableNum(variableNums[i-beginCellNum]);
-						chemistryResult.setVaule(Double.parseDouble(value));
-						chemistryResultList.add(chemistryResult);
-					}
-				}
-				sampleResult.setChemistryResults(chemistryResultList);
-		    	sampleResultList.add(sampleResult);
 			}
+			sampleResult.setDatasetNum(datasetNum);
 
+			//Set samplingFeatureNum
+			String sampleName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2)));  // SAMPLE NAME in sheet ROCKS
+			String sfCode = sampleName + "#" + analysisNum + "#" + moonDBNum;
+			
+			Integer samplingFeatureNum = UtilityDao.getSamplingFeatureNum(sfCode,sfTypeNum);;
+
+			sampleResult.setSamplingFeatureNum(samplingFeatureNum);
+
+			//Set analysisComment
+			String analysisComment = null;
+			if(sheetName != "INCLUSIONS") {
+				analysisComment = XlsParser.getCellValueString(row.getCell(3)); //ANALYSIS COMMENT in sheet ROCKS
+			}
+			sampleResult.setAnalysisComment(analysisComment);
+			
+			//Set numberOfReplicates
+			String numberOfReplicates = XlsParser.getCellValueString(row.getCell(replicateCellNum)); 
+			sampleResult.setReplicatesCount(numberOfReplicates);
+			
+			// set calcAvge 
+			String calcAvge = XlsParser.getCellValueString(row.getCell(avgeCellNum)); 
+			sampleResult.setCalcAvge(calcAvge);
+			
+			if (sheetName == "ROCKS") {
+				String material = XlsParser.getCellValueString(row.getCell(6)); //MATERIAL in sheet ROCKS
+				sampleResult.setMaterial(material);
+			}
+			
+			if (sheetName == "MINERALS") {
+				String mineral = XlsParser.getCellValueString(row.getCell(7));
+				sampleResult.setMineral(mineral);
+				
+				String grain = XlsParser.getCellValueString(row.getCell(8));
+				sampleResult.setGrain(grain);
+				
+				String rimCore = XlsParser.getCellValueString(row.getCell(9));
+				sampleResult.setRimCore(rimCore);
+				
+				String minerialSize = XlsParser.getCellValueString(row.getCell(10));
+				sampleResult.setMineralSize(minerialSize);					
+				
+				String spotId = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+				sampleResult.setSpotId(spotId);
+			}
+			
+			if (sheetName == "INCLUSIONS") {
+				String spotId = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(spotIDCellNum)));
+				sampleResult.setSpotId(spotId);
+				
+				String inclusionType = XlsParser.getCellValueString(row.getCell(6));
+				sampleResult.setInclusionType(inclusionType);
+				
+				String inclusionMineral = XlsParser.getCellValueString(row.getCell(7));
+				sampleResult.setInclusionMineral(inclusionMineral);
+				
+				String hostMineral = XlsParser.getCellValueString(row.getCell(8));
+				sampleResult.setHostMineral(hostMineral);
+				
+				String hostRock = XlsParser.getCellValueString(row.getCell(9));
+				sampleResult.setHostRock(hostRock);
+				
+				String inclusionSize = XlsParser.getCellValueString(row.getCell(10));
+				sampleResult.setInclusionSize(inclusionSize);
+				
+				String rimCore = XlsParser.getCellValueString(row.getCell(11));
+				sampleResult.setRimCore(rimCore);
+				
+				String heated = XlsParser.getCellValueString(row.getCell(12));
+				sampleResult.setHeated(heated);
+				
+				String temperature = XlsParser.getCellValueString(row.getCell(13));
+				sampleResult.setTemperature(temperature);
+			}
+			
+			//Reading chemical data		
+			ArrayList<ChemistryResult> chemistryResultList = new ArrayList<ChemistryResult>();
+			for(int j=beginCellNum; j<lastCellNum; j++) {
+				ChemistryResult chemistryResult = new ChemistryResult();
+				String value = XlsParser.getCellValueString(row.getCell(j));
+				//System.out.println("value is:" + value);
+				if(value != null) {     //skip null value
+					if(value.contains(",")) {
+						value = value.substring(0, value.indexOf(',')).trim();							
+					}
+					if(value.contains(".")) {
+						if (value.indexOf('.') == 0) {
+							value = "0" + value;
+						}
+					}
+					chemistryResult.setMethodNum(methodNums[j-beginCellNum]);
+					chemistryResult.setUnitNum(unitNums[j-beginCellNum]);
+					chemistryResult.setVariableNum(variableNums[j-beginCellNum]);
+					chemistryResult.setVaule(Double.parseDouble(value));
+					chemistryResultList.add(chemistryResult);
+				}
+			}
+			sampleResult.setChemistryResults(chemistryResultList);
+	    	sampleResultList.add(sampleResult);
 		}
+
 		sampleResults.setSampleResults(sampleResultList);
 		return sampleResults;				
 	}
