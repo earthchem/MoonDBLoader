@@ -40,7 +40,7 @@ public class LoadData {
 		if (samplingFeatures.getCounts() != 0) {
 			UtilityDao.saveSamplingFeatures(samplingFeatures);
 			recordCounts = samplingFeatures.getCounts();
-			System.out.println("recortCounts" + recordCounts);
+
 			int[] variableNums = SampleDataParser.getVariableNums(workbook, sheetName);
 			int[] unitNums = SampleDataParser.getUnitNums(workbook, sheetName);
 			int[] methodNums = SampleDataParser.getMethodNums(workbook, sheetName,methods);
@@ -119,70 +119,77 @@ public class LoadData {
 	
 	
 	public static void main(String[] args) throws IOException{
-		File file = new File("data\\MoonDB 0626.xls");
-		String fileName = file.getName();
-		FileInputStream inputStream = new FileInputStream(file);
-    	String moondbNum = fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf("."));
-    	
-    	UtilityDao.cleanPaperData(moondbNum);
-
-		try {
-
-			//Get the workbook instance for XLS file 	
-			HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-
-			/*
-			 * Step one: Loading Datasets from sheet TABLE_TITLES
-			 * Save data to table dataset and citation_dataset
-			 */
-			Datasets datasets = DatasetParser.parseDataset(workbook, moondbNum);
-			if (datasets != null) {
-				UtilityDao.saveDatasets(datasets);
-				System.out.println("Step One finished");
-			}
-			
-			/*
-			 * Step two: Loading Methods from sheet METHODS
-			 * Save data to table method
-			 */
-			Methods methods = MethodParser.parseMethod(workbook);
-			if (methods != null) {
-				UtilityDao.saveMethods(methods);
-				System.out.println("Step two finished");
-			}
-			
-			/*
-			 * Step three: Loading samping_feature from sheet SAMPLES
-			 * Save data to table sampling_feature and related_feature
-			 */
-			SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, "SAMPLES", moondbNum, null);
-			if (samplingFeatures != null) {
-				UtilityDao.saveSamplingFeatures(samplingFeatures);
-				System.out.println("Step three finished");
-			}
-			
-			/*
-			 * Step Four: Creating action
-			 * Save data to table action
-			 */
-			
-			Actions actions = ActionParser.parseAction(datasets, methods);
-			if (actions != null) {
-				UtilityDao.saveActions(actions);
-				System.out.println("Step four finished");
-			}
-			
-			/*
-			 * Step Five: Creating analysis sampling features(sub sampling features)
-			 */
-			int countOfRocks = saveData(workbook, "ROCKS", moondbNum, methods, datasets, 0);
-			int countOfMinerals = saveData(workbook, "MINERALS", moondbNum, methods, datasets,countOfRocks);
-			saveData(workbook, "INCLUSIONS", moondbNum, methods, datasets, countOfRocks + countOfMinerals);
-
-			workbook.close();
-		} finally {
 		
-			inputStream.close();
-		}
+		File[] files = new File("data/").listFiles();
+		if (files != null) {
+			for (File file : files) {
+				String fileName = file.getName();
+				FileInputStream inputStream = new FileInputStream(file);
+		    	String moondbNum = fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf("."));
+		    	
+		    	UtilityDao.cleanPaperData(moondbNum);
+
+				try {
+
+					//Get the workbook instance for XLS file 	
+					HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+
+					/*
+					 * Step one: Loading Datasets from sheet TABLE_TITLES
+					 * Save data to table dataset and citation_dataset
+					 */
+					Datasets datasets = DatasetParser.parseDataset(workbook, moondbNum);
+					if (datasets != null) {
+						UtilityDao.saveDatasets(datasets);
+						System.out.println("Datasets of " + moondbNum + " loaded.");
+					}
+					
+					/*
+					 * Step two: Loading Methods from sheet METHODS
+					 * Save data to table method
+					 */
+					Methods methods = MethodParser.parseMethod(workbook);
+					if (methods != null) {
+						UtilityDao.saveMethods(methods);
+						System.out.println("Methods of " + moondbNum + " loaded.");
+					}
+					
+					/*
+					 * Step three: Loading samping_feature from sheet SAMPLES
+					 * Save data to table sampling_feature and related_feature
+					 */
+					SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, "SAMPLES", moondbNum, null);
+					if (samplingFeatures != null) {
+						UtilityDao.saveSamplingFeatures(samplingFeatures);
+						System.out.println("Sampling features of " + moondbNum + " loaded.");
+					}
+					
+					/*
+					 * Step Four: Creating action
+					 * Save data to table action
+					 */
+					
+					Actions actions = ActionParser.parseAction(datasets, methods);
+					if (actions != null) {
+						UtilityDao.saveActions(actions);
+						System.out.println("Actions of " + moondbNum + " loaded.");
+					}
+					
+					/*
+					 * Step Five: Creating analysis sampling features(sub sampling features)
+					 */
+					int countOfRocks = saveData(workbook, "ROCKS", moondbNum, methods, datasets, 0);
+					int countOfMinerals = saveData(workbook, "MINERALS", moondbNum, methods, datasets,countOfRocks);
+					saveData(workbook, "INCLUSIONS", moondbNum, methods, datasets, countOfRocks + countOfMinerals);
+					System.out.println("Data of " + moondbNum + " loaded.");
+					
+					workbook.close();
+				} finally {
+				
+					inputStream.close();
+				}
+				
+			}
+		}	
 	}
 }
