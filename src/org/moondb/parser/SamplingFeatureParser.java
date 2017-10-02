@@ -75,9 +75,9 @@ public class SamplingFeatureParser {
 				parentSamplingFeatureCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2)));  //corresponding STATION_NAME in sheet SAMPLES
 				
 				//no parent sampling feature if the sampling feature is root sampling feature 
-				if(samplingFeatureCode.equals(parentSamplingFeatureCode)) {
-					parentSamplingFeatureCode = null;
-				} 
+			//	if(samplingFeatureCode.equals(parentSamplingFeatureCode)) {
+			//		parentSamplingFeatureCode = null;
+			//	} 
 					
 				samplingFeatureComment = XlsParser.getCellValueString(row.getCell(3));	
 				
