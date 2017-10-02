@@ -26,6 +26,18 @@ public class UtilityDao {
 		
 	}
 	
+	public static boolean isOrgExist(Integer orgNum) {
+		if (orgNum == null)
+			return false;
+		String query = "SELECT COUNT(*) FROM organization WHERE organization_num='" + orgNum + "'";
+		Long count = (Long)DatabaseUtil.getUniqueResult(query);
+		if (count > 0)
+			return true;
+		else
+			return false;
+		
+	}
+	
 	public static boolean isDatasetExist(String datasetCode) {
 		String query = "SELECT COUNT(*) FROM dataset WHERE dataset_code='" + datasetCode + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
@@ -315,7 +327,7 @@ public class UtilityDao {
 			}
 			DatabaseUtil.update(query);
 			
-			if(sfParentCode != null) {
+			if(sfParentCode != sfCode) {
 				Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
 				Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
 				Integer relationshipTypeNum = 9;  //isSubSampleOf
@@ -330,33 +342,7 @@ public class UtilityDao {
 		List<SamplingFeature> sfs = samplingFeatures.getSamplingFeatures();
 
 		for(SamplingFeature sf: sfs) {
-			String sfCode = sf.getSamplingFeatureCode();
-			String sfParentCode = sf.getParentSamplingFeatureCode();
-			String sfName = sf.getSamplingFeatureName();
-			String sfComment = sf.getSamplingFeatureComment();
-			Integer sfTypeNum = sf.getSamplingFeatureTypeNum();
-			
-			String query;
-			if (!isSamplingFeatureExist(sfCode, sfTypeNum)) {
-				//save to table sampling_feature
-				if(sfComment == null) {
-					query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"',"+sfComment+")";
-				} else {
-					query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"','"+sfComment+"')";
-				}
-				DatabaseUtil.update(query);
-				
-				if(sfParentCode != null) {
-					Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
-					Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
-					Integer relationshipTypeNum = 9;  //isSubSampleOf
-					//save to table related_feature
-					query = "INSERT INTO related_feature(sampling_feature_num,related_sampling_feature_num,relationship_type_num) VALUES('"+sfNum+"',"+sfParentNum+",'"+relationshipTypeNum+"')";
-					DatabaseUtil.update(query);
-				}
-
-			}			
-
+			saveSamplingFeature(sf);
 		}
 	}
 	

@@ -6,18 +6,25 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.moondb.dao.UtilityDao;
+import org.moondb.model.Method;
+import org.moondb.model.Methods;
 import org.moondb.model.MoonDBType;
 import org.moondb.model.RowCellPos;
+import org.moondb.model.SamplingFeature;
+import org.moondb.model.SamplingFeatures;
+import org.moondb.parser.MethodParser;
+import org.moondb.parser.SamplingFeatureParser;
 import org.moondb.parser.XlsParser;
 
 public class Echecker {
-	private static final String ECHECKERLOG = "log\\echecker.txt";
+	private static final String ECHECKERLOG = "log/echecker.txt";
 	
 	private static void writeLog(BufferedWriter bw, String content) throws IOException {
 		bw.write(content);
@@ -143,7 +150,7 @@ public class Echecker {
 	public static void main(String[] args) throws IOException{
 		
 		
-		File[] files = new File("data\\").listFiles();
+		File[] files = new File("checking/").listFiles();
 		BufferedWriter bw = null;
 		FileWriter fw = null;
 		
@@ -186,22 +193,53 @@ public class Echecker {
 		        	}
 		        	
 		        	//Sheet SAMPLES checking
-		        	if(!XlsParser.isRowEndingSymbolExist(workbook, "SAMPLES")) {
+		        /*	if(!XlsParser.isRowEndingSymbolExist(workbook, "SAMPLES")) {
 		        		content = "Row ending Symbol -1 check(SAMPLES):   not found";
 		        		writeLog(bw, content);
 		        		
 		        		result = false;
-		        	}		        	
-		        	
+		        	}	*/	        	
+					SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, "SAMPLES", moondbNum, null);
+					List<SamplingFeature> sfList = samplingFeatures.getSamplingFeatures();
+					for(SamplingFeature sf : sfList) {
+						String parentSfCode = sf.getParentSamplingFeatureCode();
+						if (!UtilityDao.isSamplingFeatureExist(parentSfCode,1)) {
+			        		content = "Parent sampling feature " + parentSfCode + "(SAMPLES):   not found";
+			        		writeLog(bw, content);			        		
+			        		result = false;
+						}							
+					}
 		        	//Sheet METHODS checking
-		        	if(!XlsParser.isRowEndingSymbolExist(workbook, "METHODS")) {
+		        /*	if(!XlsParser.isRowEndingSymbolExist(workbook, "METHODS")) {
 		        		content = "Row ending Symbol -1 check(METHODS):   not found";
 		        		writeLog(bw, content);
 		        		
 		        		result = false;
 		        	}
+		        	*/
+		        	Methods methods = MethodParser.parseMethod(workbook);
+		        	List<Method> methodList = methods.getMethods();
+		        	for (Method method : methodList) {
+		        		Integer labNum = method.getMethodLabNum();
+		        		if (!UtilityDao.isOrgExist(labNum)) {
+			        		content = "LAB " + labNum +" (METHODS):   not found";
+			        		writeLog(bw, content);
+			        		result = false;
+		        		}
+		        		
+		        	}
 		        	
 		        	//Sheet ROCKS checking
+	        		if (!variableCheckPass(workbook,"ROCKS",bw))
+	        			result = false;
+	        		
+	        		//Unit code checking
+	        		if (!unitCheckPass(workbook,"ROCKS",bw))
+	        			result = false;
+	        		//Numeric value checking
+	        		if(!valueCheckPass(workbook,"ROCKS", bw))
+	        			result = false;
+	        		/*
 		        	if(XlsParser.isRowEndingSymbolExist(workbook, "ROCKS")) {
 		        		if(XlsParser.isDataExist(workbook, "ROCKS")) {
 		        			if(XlsParser.isColEndingSymbolExist(workbook, "ROCKS")) {        		
@@ -226,8 +264,20 @@ public class Echecker {
 		        		writeLog(bw, content);
 		        		result = false;
 		        	}
-		        	
+		        	*/
 		        	//Sheet MINERALS checking
+	        		//Variable code checking
+	        		if(!variableCheckPass(workbook,"MINERALS",bw))
+	        			result = false;
+	        		
+	        		//Unit code checking
+	        		if(!unitCheckPass(workbook,"MINERALS",bw))
+	        			result = false;
+	        		
+	        		//Numeric value checking
+	        		if(!valueCheckPass(workbook,"MINERALS", bw))
+	        			result = false;
+	        		/*
 		        	if(XlsParser.isRowEndingSymbolExist(workbook, "MINERALS")) {
 		        		if(XlsParser.isDataExist(workbook, "MINERALS")) {
 		        			if(XlsParser.isColEndingSymbolExist(workbook, "MINERALS")) {   
@@ -253,8 +303,19 @@ public class Echecker {
 		        		writeLog(bw, content);
 		        		result = false;
 		        	}
-		        	
+		        	*/
+	        		
 		        	//Sheet INCLUSIONS checking
+	        		//Variable code checking
+	        		if(!variableCheckPass(workbook,"INCLUSIONS",bw))
+	        			result = false;
+	        		
+	        		//Unit code checking
+	        		if (!unitCheckPass(workbook,"INCLUSIONS",bw)) 
+	        			result = false;
+	        		if(!valueCheckPass(workbook,"INCLUSIONS", bw))
+	        			result = false;
+	        		/*
 		        	if(XlsParser.isRowEndingSymbolExist(workbook, "INCLUSIONS")) {
 		        		if(XlsParser.isDataExist(workbook, "INCLUSIONS")) {
 		        			if(XlsParser.isColEndingSymbolExist(workbook, "INCLUSIONS")) {
@@ -279,7 +340,7 @@ public class Echecker {
 		        		writeLog(bw, content);
 		        		result = false;
 		        	}
-		        	
+		        	*/
 		        	workbook.close();
 		        	 
 		        }finally {
