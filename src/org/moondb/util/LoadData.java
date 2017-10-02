@@ -124,6 +124,8 @@ public class LoadData {
 		FileInputStream inputStream = new FileInputStream(file);
     	String moondbNum = fileName.substring(fileName.indexOf(' ')+1, fileName.indexOf("."));
     	
+    	UtilityDao.cleanPaperData(moondbNum);
+
 		try {
 
 			//Get the workbook instance for XLS file 	

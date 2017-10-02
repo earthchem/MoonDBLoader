@@ -519,6 +519,104 @@ public class UtilityDao {
 		}
 	}
 	
+	public static List<Integer> getDatasetNums(int citationNum) {
+		List<Integer> datasetNums = new ArrayList<Integer>();
+		String query = "SELECT dataset_num FROM citation_dataset where citation_num ='" + citationNum + "'";
+		List<Object []> dsNums = DatabaseUtil.getRecords(query);
+
+		for (Object [] dsNum : dsNums) {
+			datasetNums.add((Integer)dsNum[0]);
+		}
+		return datasetNums;
+		
+	}
+	
+	public static List<Integer> getResultNums (int datasetNum) {
+		List<Integer> resultNums = new ArrayList<Integer>();
+		String query = "SELECT result_num FROM dataset_result where dataset_num ='" + datasetNum + "'";
+		List<Object []> rsNums = DatabaseUtil.getRecords(query);
+
+		for (Object [] rsNum : rsNums) {
+			resultNums.add((Integer)rsNum[0]);
+		}
+		return resultNums;
+	}
+	
+	public static List<Integer> getActionNums (int datasetNum) {
+		List<Integer> actionNums = new ArrayList<Integer>();
+		String query = "SELECT action_num FROM action where dataset_num ='" + datasetNum + "'";
+		List<Object []> acNums = DatabaseUtil.getRecords(query);
+
+		for (Object [] acNum : acNums) {
+			actionNums.add((Integer)acNum[0]);
+		}
+		return actionNums;
+	}
+	
+	public static List<Integer> getSfNumsByActionNum (int actionNum) {
+		List<Integer> samplingFeatureNums = new ArrayList<Integer>();
+		String query = "SELECT sampling_feature_num FROM feature_action where action_num ='" + actionNum + "'";
+		List<Object[]> sfNums = DatabaseUtil.getRecords(query);
+		
+		for (Object[] sfNum : sfNums) {
+
+			samplingFeatureNums.add((Integer)sfNum[0]);
+
+		}
+		return samplingFeatureNums;
+	}
+	
+	
+	public static void cleanPaperData(String moondbNum) {
+		List<String> queries = new ArrayList<String>();
+		String query = null;
+				
+		int citationNum = getCitationNum(moondbNum);
+		List<Integer> dsNums = getDatasetNums(citationNum);
+		for(Integer dsNum : dsNums) {
+
+			List<Integer> rsNums = getResultNums(dsNum);
+			
+			query = "DELETE FROM dataset_result where dataset_num='" + dsNum + "'";
+			queries.add(query);
+			
+			for(Integer rsNum : rsNums) {
+				query = "DELETE FROM numeric_data where result_num='" + rsNum + "'";
+				queries.add(query);
+
+				query = "DELETE FROM result where result_num='" + rsNum + "'";
+				queries.add(query);
+			}
+
+			
+			List<Integer> acNums = getActionNums(dsNum);
+			for(Integer acNum : acNums) {
+				List<Integer> sfNums = getSfNumsByActionNum(acNum);
+				query = "DELETE FROM feature_action where action_num='" + acNum + "'";
+				queries.add(query);
+				for(Integer sfNum : sfNums) {
+
+					query = "DELETE FROM related_feature where sampling_feature_num='" + sfNum + "'";
+					queries.add(query);
+					query = "DELETE FROM sampling_feature_annotation where sampling_feature_num='" + sfNum + "'";
+					queries.add(query);
+					query = "DELETE FROM sampling_feature where sampling_feature_num='" + sfNum + "'";
+					queries.add(query);
+				}
+				query = "DELETE FROM action where action_num='" + acNum + "'";
+				queries.add(query);		
+			}
+	
+			query = "DELETE FROM citation_dataset where dataset_num='" + dsNum + "'";
+			queries.add(query);
+			query = "DELETE FROM dataset where dataset_num='" + dsNum + "'";
+			queries.add(query);
+		}
+		
+		if (queries.size() > 0)
+			DatabaseUtil.update(queries);
+	}
+	
 	public static void cleanMoonDB () {
 		List<String> queries = new ArrayList<String>();
 		String query = null;
@@ -539,6 +637,17 @@ public class UtilityDao {
 		query = "DELETE FROM result";
 		queries.add(query);
 		query = "ALTER SEQUENCE result_result_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		query = "DELETE FROM citation_dataset";
+		queries.add(query);
+		query = "ALTER SEQUENCE citation_dataset_citation_dataset_num_seq RESTART WITH 1";
+		queries.add(query);
+		
+		
+		query = "DELETE FROM dataset";
+		queries.add(query);
+		query = "ALTER SEQUENCE dataset_dataset_num_seq RESTART WITH 1";
 		queries.add(query);
 		
 		query = "DELETE FROM feature_action";
