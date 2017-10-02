@@ -3,7 +3,6 @@ package org.moondb.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Iterator;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -19,10 +18,10 @@ public class LoadRootSample {
 	public static void main(String[] args) throws IOException{
 		
 		int beginRowNum = 1;
-		System.out.println("clean time:" + LocalDateTime.now());
 		UtilityDao.cleanMoonDB();
-		System.out.println("starting time:" + LocalDateTime.now());
-		File file = new File("refdata\\rootspecimen.xls");
+		System.out.println("Loading start...");
+		
+		File file = new File("refdata/rootspecimen.xls");
 		FileInputStream inputStream = new FileInputStream(file);
 		
 		try {
@@ -38,13 +37,14 @@ public class LoadRootSample {
 				SamplingFeature samplingFeature = new SamplingFeature();
 				Action action = new Action();
 				Row row = rowIterator.next();
-				System.out.println("cur row:" + row.getRowNum());
 				if(row.getRowNum()>= beginRowNum) {
 					//Save sampling feature to table sampling_feature
 					String sfCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0)));
 					if (sfCode == null)
 						break;          //data ending
 					
+					System.out.println("Loading sampling feature: " + sfCode);
+
 					String sfName = sfCode;
 					String sfDescription = XlsParser.getCellValueString(row.getCell(1));
 					int sfTypeNum = MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue();
@@ -127,9 +127,9 @@ public class LoadRootSample {
 						String actionName = sfCode + ": weight: Unknown";
 						action.setActionName(actionName);
 						action.setActionTypeNum(20);  //Specimen analysis
-						action.setMethodNum(19);	
+						action.setMethodNum(11);	
 						UtilityDao.saveAction(action);
-						actionNum = UtilityDao.getActionNum(actionName, 19, 20);
+						actionNum = UtilityDao.getActionNum(actionName, 11, 20);
 
 						UtilityDao.saveFeatureAction(sfNum, actionNum);
 						
@@ -146,9 +146,9 @@ public class LoadRootSample {
 						String actionName = sfCode + ": pristinity: Unknown";
 						action.setActionName(actionName);
 						action.setActionTypeNum(17);  //Observation
-						action.setMethodNum(19);	
+						action.setMethodNum(11);	
 						UtilityDao.saveAction(action);
-						actionNum = UtilityDao.getActionNum(actionName, 19, 17);
+						actionNum = UtilityDao.getActionNum(actionName, 11, 17);
 
 						UtilityDao.saveFeatureAction(sfNum, actionNum);
 						
@@ -164,9 +164,9 @@ public class LoadRootSample {
 						String actionName = sfCode + ": pristinity_date: Unknown";
 						action.setActionName(actionName);
 						action.setActionTypeNum(13);  //Generic non-observation
-						action.setMethodNum(19);	
+						action.setMethodNum(11);	
 						UtilityDao.saveAction(action);
-						actionNum = UtilityDao.getActionNum(actionName, 19, 13);
+						actionNum = UtilityDao.getActionNum(actionName, 11, 13);
 
 						UtilityDao.saveFeatureAction(sfNum, actionNum);
 						
@@ -179,7 +179,7 @@ public class LoadRootSample {
 					
 				}
 			}
-			System.out.println("ending time:" + LocalDateTime.now());
+			System.out.println("Loading end!");
 			workbook.close();
 		} finally {
 		
