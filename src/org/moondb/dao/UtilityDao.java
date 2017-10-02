@@ -316,7 +316,6 @@ public class UtilityDao {
 			DatabaseUtil.update(query);
 			
 			if(sfParentCode != null) {
-				System.out.println("parent:" + sfParentCode);
 				Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
 				Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
 				Integer relationshipTypeNum = 9;  //isSubSampleOf
@@ -348,7 +347,6 @@ public class UtilityDao {
 				DatabaseUtil.update(query);
 				
 				if(sfParentCode != null) {
-					System.out.println("parent:" + sfParentCode);
 					Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
 					Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
 					Integer relationshipTypeNum = 9;  //isSubSampleOf
@@ -588,23 +586,27 @@ public class UtilityDao {
 				queries.add(query);
 			}
 
-			
+	        List<Integer> sfNums = new ArrayList<Integer>();		
 			List<Integer> acNums = getActionNums(dsNum);
 			for(Integer acNum : acNums) {
-				List<Integer> sfNums = getSfNumsByActionNum(acNum);
+				if(getSfNumsByActionNum(acNum).size()>0)
+					sfNums.addAll(getSfNumsByActionNum(acNum));
 				query = "DELETE FROM feature_action where action_num='" + acNum + "'";
 				queries.add(query);
-				for(Integer sfNum : sfNums) {
 
-					query = "DELETE FROM related_feature where sampling_feature_num='" + sfNum + "'";
-					queries.add(query);
-					query = "DELETE FROM sampling_feature_annotation where sampling_feature_num='" + sfNum + "'";
-					queries.add(query);
-					query = "DELETE FROM sampling_feature where sampling_feature_num='" + sfNum + "'";
-					queries.add(query);
-				}
 				query = "DELETE FROM action where action_num='" + acNum + "'";
 				queries.add(query);		
+			}
+			
+			
+			for(Integer sfNum : sfNums) {
+				
+				query = "DELETE FROM related_feature where sampling_feature_num='" + sfNum + "'";
+				queries.add(query);
+				query = "DELETE FROM sampling_feature_annotation where sampling_feature_num='" + sfNum + "'";
+				queries.add(query);
+				query = "DELETE FROM sampling_feature where sampling_feature_num='" + sfNum + "'";
+				queries.add(query);
 			}
 	
 			query = "DELETE FROM citation_dataset where dataset_num='" + dsNum + "'";
