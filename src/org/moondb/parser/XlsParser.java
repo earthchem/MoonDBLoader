@@ -208,23 +208,53 @@ public class XlsParser {
 		Integer lastRowNum = null;
 		
 		HSSFSheet sheet = workbook.getSheet(sheetName);
+		int totalRows = sheet.getPhysicalNumberOfRows();
+		
+		for (int i = beginRowNum; i <= totalRows; i ++) {
+			Row row = sheet.getRow(i);
+			if (row == null) {
+				lastRowNum = i;
+				break;
+			}
+			
+			String endColNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(endSymbolColNum)));
+
+			if (endColNum == null || endColNum.equals("-1")) {
+				lastRowNum = i;
+				break;
+			}
+		}
+
+		return lastRowNum;
+		}
+/*		
+		System.out.println("counts of rows:" + sheet.getPhysicalNumberOfRows());
 		Iterator<Row> rowIterator = sheet.iterator();
+		int i =0;
 		while (rowIterator.hasNext()) {
+			i++;
+			System.out.println("line num: " + i);
 			Row row = rowIterator.next();
+			if (row == null) {
+			
+				System.out.println("Row is null");
+			}
+			int curRowNum = row.getRowNum();
+			System.out.println("cur row: " + curRowNum);
 			//if (row.getRowNum() >= RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue()) {
-			if (row.getRowNum() >= beginRowNum) {
+			if (curRowNum >= beginRowNum) {
 				//String endColNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue())));   //corresponding to SAMPLE_ID in sheet SAMPLES, ANALYSIS NO. in sheet ROCKS,MINERIALS and INCLUSIONS
 				String endColNum = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(endSymbolColNum)));
 
 				if (endColNum == null || endColNum.equals("-1")) {
-					lastRowNum = row.getRowNum();
+					lastRowNum = curRowNum;
 					break;
 				}
 			}
 		}
 
 		return lastRowNum;
-	}
+	}*/
 	
 	
 	/*
