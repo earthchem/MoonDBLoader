@@ -24,7 +24,7 @@ import org.moondb.parser.SamplingFeatureParser;
 import org.moondb.parser.XlsParser;
 
 public class Echecker {
-	private static final String ECHECKERLOG = "log/echecker.txt";
+	private static final String ECHECKERLOG = "echecker.txt";
 	
 	private static void writeLog(BufferedWriter bw, String content) throws IOException {
 		bw.write(content);
@@ -155,7 +155,9 @@ public class Echecker {
 		FileWriter fw = null;
 		
 		if (files != null) {
-	    	fw = new FileWriter(ECHECKERLOG);
+			File logFile = new File("log/", ECHECKERLOG);
+
+	    	fw = new FileWriter(logFile);
 	    	
 	    	bw = new BufferedWriter(fw);
 		    for (File file : files) {
