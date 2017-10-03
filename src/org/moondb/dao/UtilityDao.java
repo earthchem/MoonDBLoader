@@ -104,11 +104,17 @@ public class UtilityDao {
 	
 	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
 		String query = null;
-		if (methodComment == null) {
+		
+		if (methodComment == null && methodLabNum != null) {
 			query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num='" + methodLabNum + "' AND method_description is "+methodComment + " AND method_type_num=3";
+		} else if (methodComment == null && methodLabNum == null) {
+			query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num is " + methodLabNum + " AND method_description is "+methodComment + " AND method_type_num=3";
+		} else if (methodComment != null && methodLabNum == null) {
+			query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num is " + methodLabNum + " AND method_description='"+methodComment + "' AND method_type_num=3";
 		} else {
 			query = "SELECT COUNT(*) FROM method WHERE method_code='" + methodTech +"' AND organization_num='" + methodLabNum + "' AND method_description='"+methodComment + "' AND method_type_num=3";
 		}
+		
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
 			return true;
@@ -422,12 +428,19 @@ public class UtilityDao {
 			String query;
 			if(!isMethodExist(methodTech,methodLabNum,methodComment)) {
 				//save to table method
-				if(methodComment == null) {
+				if(methodComment == null && methodLabNum != null) {
 					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"',"+methodComment +",'" + methodName+"')";
+
+				} else if (methodComment == null && methodLabNum == null) {
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"',"+methodLabNum+","+methodComment +",'" + methodName+"')";
+
+				} else if (methodComment != null && methodLabNum == null) {
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"',"+methodLabNum+",'"+methodComment +"','" + methodName+"')";
 
 				} else {
 					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"','"+methodComment +"','" + methodName+"')";
 				}
+				
 				DatabaseUtil.update(query);
 			}
 		}

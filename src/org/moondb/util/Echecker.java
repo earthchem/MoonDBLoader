@@ -221,12 +221,17 @@ public class Echecker {
 		        	List<Method> methodList = methods.getMethods();
 		        	for (Method method : methodList) {
 		        		Integer labNum = method.getMethodLabNum();
-		        		if (!UtilityDao.isOrgExist(labNum)) {
+		        		if (labNum == null) {
 			        		content = "LAB " + labNum +" (METHODS):   not found";
 			        		writeLog(bw, content);
 			        		result = false;
+		        		} else {
+			        		if (!UtilityDao.isOrgExist(labNum)) {
+				        		content = "LAB " + labNum +" (METHODS):   not found";
+				        		writeLog(bw, content);
+				        		result = false;
+			        		}
 		        		}
-		        		
 		        	}
 		        	
 		        	//Sheet ROCKS checking

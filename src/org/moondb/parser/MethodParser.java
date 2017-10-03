@@ -28,7 +28,14 @@ public class MethodParser {
 			
 			String methodCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1))); //corresponding to METHOD_CODE in sheet METHODS
 			String methodTech = XlsParser.getCellValueString(row.getCell(2)); //corresponding to TECHNIQUE in sheet METHODS
-			Integer methodLabNum = Integer.parseInt(XlsParser.formatString(XlsParser.getCellValueString(row.getCell(3))));  //corresponding to LAB in sheet METHODS
+			
+			Integer methodLabNum = null;
+			try {
+				methodLabNum = Integer.parseInt(XlsParser.formatString(XlsParser.getCellValueString(row.getCell(3))));  //corresponding to LAB in sheet METHODS
+
+			} catch (NumberFormatException e) {
+				methodLabNum = null;
+			}
 			String methodComment = XlsParser.getCellValueString(row.getCell(4));   //corresponding to METHOD_COMMENT in sheet METHODS
 			Integer methodTypeNum = MoonDBType.METHOD_TYPE_LABANALYSIS.getValue();
 			
