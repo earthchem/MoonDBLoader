@@ -333,7 +333,7 @@ public class UtilityDao {
 			}
 			DatabaseUtil.update(query);
 			
-			if(sfParentCode != sfCode) {
+			if(sfParentCode != null && sfParentCode != sfCode) {
 				Integer sfNum = getSamplingFeatureNum(sfCode, sfTypeNum);
 				Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
 				Integer relationshipTypeNum = 9;  //isSubSampleOf

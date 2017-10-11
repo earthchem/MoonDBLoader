@@ -43,17 +43,22 @@ public class Echecker {
 		switch (sheetName) {
 		case "ROCKS":
 			colStart = RowCellPos.ROCKS_VMUCD_CELL_B.getValue();
+			break;
 		case "MINERALS":
 			colStart = RowCellPos.MINERALS_VMUCD_CELL_B.getValue();
+			break;
 		case "INCLUSIONS":
 			colStart = RowCellPos.INCLUSIONS_VMUCD_CELL_B.getValue();
+			break;
 		}
 		
 		for (int i=rowStart; i<rowEnd; i++) {
 			HSSFRow row = workbook.getSheet(sheetName).getRow(i);
 			Integer colEnd = XlsParser.getLastColNum(workbook.getSheet(sheetName), RowCellPos.VARIABLE_BEGIN_ROW_NUM.getValue());
 			for(int j=colStart; j<colEnd; j++) {
+				
 				value = XlsParser.getCellValueString(row.getCell(j));
+
 				if(value != null) {     //skip null value
 					if(value.contains(",")) {
 						value = value.substring(0, value.indexOf(',')).trim();							
