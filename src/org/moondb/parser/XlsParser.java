@@ -130,6 +130,9 @@ public class XlsParser {
 		case "Unit":
 			rowNum = RowCellPos.UNIT_ROW_B.getValue();
 			break;
+		case "Method":
+			rowNum = RowCellPos.METHOD_ROW_B.getValue();
+			break;
 		default:
 			rowNum = -1;
 		}
@@ -158,7 +161,7 @@ public class XlsParser {
 
         String[] result = new String[dataEntrySize];
 		for(int i=beginCellNum; i<lastCellNum; i++) {
-			result[i-beginCellNum] = getCellValueString(row.getCell(i));
+			result[i-beginCellNum] = formatString(getCellValueString(row.getCell(i)));
 		}
 		return result;
 	}

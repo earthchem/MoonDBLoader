@@ -186,17 +186,17 @@ public class SampleDataParser {
 
 				if(tabInRef.equals(ds.getTableCode())) {
 					datasetNum = UtilityDao.getDatasetNum(ds.getDatasetCode());
-					
 					break;
 				}
 			}
+
 			sampleResult.setDatasetNum(datasetNum);
 
 			//Set samplingFeatureNum
 			String sampleName = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2)));  // SAMPLE NAME in sheet ROCKS
 			String sfCode = sampleName + "#" + analysisNum + "#" + moonDBNum;
 			
-			Integer samplingFeatureNum = UtilityDao.getSamplingFeatureNum(sfCode,sfTypeNum);;
+			Integer samplingFeatureNum = UtilityDao.getSamplingFeatureNum(sfCode,sfTypeNum);
 
 			sampleResult.setSamplingFeatureNum(samplingFeatureNum);
 

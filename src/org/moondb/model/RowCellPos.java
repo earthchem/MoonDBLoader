@@ -51,6 +51,11 @@ public enum RowCellPos {
 	 */
 	UNIT_ROW_B(4), 
 	/*
+	 * Beginning row number of method in sheet ROCKS, MINERALS and INCLUSIONS
+	 */
+	METHOD_ROW_B(3), 
+	
+	/*
 	 * Beginning cell number of variable, method, unit and chemical data in Sheet ROCKS
 	 */
 	ROCKS_VMUCD_CELL_B(7),  

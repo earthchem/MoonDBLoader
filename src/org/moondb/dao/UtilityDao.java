@@ -16,6 +16,16 @@ import org.moondb.util.DatabaseUtil;
 
 public class UtilityDao {
 
+	public static String formatQueryString (String str) {
+
+		if(str != null && str.contains("'")) {
+			
+			str = str.replaceAll("'", "''"); 
+		} 
+		
+		return str;
+	}
+	
 	public static boolean isCitationExist(String moondbNum) {
 		String query = "SELECT COUNT(*) FROM citation WHERE moondbnum='" + moondbNum + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
@@ -39,6 +49,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isDatasetExist(String datasetCode) {
+		datasetCode = formatQueryString(datasetCode);
 		String query = "SELECT COUNT(*) FROM dataset WHERE dataset_code='" + datasetCode + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
@@ -48,6 +59,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isSamplingFeatureExist(String samplingFeatureCode, int samplingFeatureTypeNum) {
+		samplingFeatureCode = formatQueryString(samplingFeatureCode);
 		String query = "SELECT COUNT(*) FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "' AND sampling_feature_type_num='" + samplingFeatureTypeNum + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
@@ -57,6 +69,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isActionExist(int actionTypeNum, int methodNum, String actionName) {
+		actionName = formatQueryString(actionName);
 		String query = "SELECT COUNT(*) FROM action WHERE method_num='" + methodNum + "' AND action_name='" + actionName + "' AND action_type_num='" + actionTypeNum +"'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count == 1)
@@ -103,6 +116,8 @@ public class UtilityDao {
 	}
 	
 	public static boolean isMethodExist(String methodTech, Integer methodLabNum, String methodComment) {
+		methodTech = formatQueryString(methodTech);
+		methodComment = formatQueryString(methodComment);
 		String query = null;
 		
 		if (methodComment == null && methodLabNum != null) {
@@ -123,6 +138,7 @@ public class UtilityDao {
 	}
 
 	public static boolean isVariableExist(String variableCode) {
+		variableCode = formatQueryString(variableCode);
 		String query = "SELECT COUNT(*) FROM variable WHERE variable_code='" + variableCode + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count > 0)
@@ -132,6 +148,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isVariableExist(String variableCode, int variableTypeNum) {
+		variableCode = formatQueryString(variableCode);
 		String query = "SELECT COUNT(*) FROM variable WHERE variable_code='" + variableCode + "' AND variable_type_num='"+variableTypeNum+"'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count >0)
@@ -141,6 +158,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isUnitExist(String unitAbbr) {
+		unitAbbr = formatQueryString(unitAbbr);
 		String query = "SELECT COUNT(*) FROM unit WHERE unit_abbreviation='" + unitAbbr + "'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count == 1)
@@ -150,11 +168,13 @@ public class UtilityDao {
 	}
 	
 	public static long getCountOfVariable(String variableCode) {
+		variableCode = formatQueryString(variableCode);
 		String query = "SELECT COUNT(*) from variable where variable_code='" + variableCode + "'";
 		return (long)DatabaseUtil.getUniqueResult(query);
 	}
 	
 	public static Integer getVariableNum(String variableCode) {
+		variableCode = formatQueryString(variableCode);
 		if (getCountOfVariable(variableCode) > 1) {
 			String query = "SELECT variable_num, variable_type_num FROM variable WHERE variable_code='" + variableCode + "'";
 			List<Object[]> records = DatabaseUtil.getRecords(query);
@@ -184,6 +204,7 @@ public class UtilityDao {
 	}
 	
 	public static Integer getVariableNum(String variableCode, int variableTypeNum) {
+		variableCode = formatQueryString(variableCode);
 		String query = "SELECT variable_num FROM variable WHERE variable_code='" + variableCode + "' AND variable_type_num='"+variableTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
@@ -203,6 +224,7 @@ public class UtilityDao {
 	 * Fit for Expedition Method
 	 */
 	public static Integer getMethodNum(String methodCode, int methodTypeNum) {
+		methodCode = formatQueryString(methodCode);
 		String query = "SELECT method_num FROM method WHERE method_code='" + methodCode + "' AND method_type_num='" + methodTypeNum + "'" ;
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
@@ -211,12 +233,16 @@ public class UtilityDao {
 	 * Fit for Lab Analysis method
 	 */
 	public static Integer getMethodNum(String methodTech, Integer methodLabNum, String methodComment) {
+		methodTech = formatQueryString(methodTech);
+		methodComment = formatQueryString(methodComment);
+		
 		String query = null;
 		if(methodComment == null) {
-			query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description is" + methodComment + " AND method_type_num=3";
+			query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description is " + methodComment + " AND method_type_num=3";
 		} else {
 			query = "SELECT method_num FROM method WHERE method_code='" + methodTech + "' AND organization_num=" + methodLabNum + " AND method_description='" + methodComment + "' AND method_type_num=3";
 		}
+		//System.out.println(query);
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
@@ -232,16 +258,20 @@ public class UtilityDao {
 	}
 	
 	public static Integer getDatasetNum(String datasetCode) {
+		datasetCode = formatQueryString(datasetCode);
 		String query = "SELECT dataset_num FROM dataset WHERE dataset_code='" + datasetCode + "'";
+		//System.out.println(query);
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
 	public static Integer getActionNum(int datasetNum, int methodNum, int actionTypeNum) {
 		String query = "SELECT action_num FROM action WHERE dataset_num='" + datasetNum + "' AND method_num='" + methodNum +"' AND action_type_num='" + actionTypeNum + "'";
+		//System.out.println(query);
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
 	public static Integer getActionNum(String actionName, int methodNum, int actionTypeNum) {
+		actionName = formatQueryString(actionName);
 		String query = "SELECT action_num FROM action WHERE action_name='" + actionName + "' AND method_num='" + methodNum +"' AND action_type_num='" + actionTypeNum + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
@@ -257,14 +287,15 @@ public class UtilityDao {
 	}
 	
 	public static Integer getSamplingFeatureNum(String samplingFeatureCode, int samplingFeatureTypeNum) {
+		samplingFeatureCode = formatQueryString(samplingFeatureCode);
 		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_code='" + samplingFeatureCode + "' AND sampling_feature_type_num='" + samplingFeatureTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 
 	public static Integer getFeatureOfInterestNum(String foitName,int foitTypeNum) {
-		if (foitName.contains("'")) 
-			foitName = foitName.replaceAll("'", "''");
-		
+		//if (foitName.contains("'")) 
+		//	foitName = foitName.replaceAll("'", "''");
+		foitName = formatQueryString(foitName);
 		String query = "SELECT feature_of_interest_cv_num FROM feature_of_interest_cv WHERE feature_of_interest_cv_name='" + foitName + "' AND feature_of_interest_type_num='" + foitTypeNum +"'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
@@ -281,12 +312,12 @@ public class UtilityDao {
 	}
 		
 	public static void saveSamplingFeatureTaxonomicClassifier(int sfNum, int tcNum) {
-		String query = "INSERT INTO sampling_feature_taxonomic_classifier(sampling_feature_num,taxonomic_classifier_num) VALUES('"+sfNum+"','" + tcNum +"')";
+		String query = "INSERT INTO sampling_feature_taxonomic_classifier(sampling_feature_num,taxonomic_classifier_num) VALUES("+sfNum+"," + tcNum +")";
 		DatabaseUtil.update(query);
 	}
 	
 	public static void saveSamplingFeatureMaterial(int sfNum, int materialNum) {
-		String query = "INSERT INTO sampling_feature_material(sampling_feature_num,material_num) VALUES('"+sfNum+"','" + materialNum +"')";
+		String query = "INSERT INTO sampling_feature_material(sampling_feature_num,material_num) VALUES("+sfNum+"," + materialNum +")";
 		DatabaseUtil.update(query);
 	}
 	
@@ -297,9 +328,9 @@ public class UtilityDao {
 		List<Dataset> dss = datasets.getDatasets();
 	
 		for(Dataset ds: dss) {
-			String datasetCode = ds.getDatasetCode();
+			String datasetCode = formatQueryString(ds.getDatasetCode());
 			String datasetType = ds.getDatasetType();
-			String datasetTitle = ds.getDatasetTitle();
+			String datasetTitle = formatQueryString(ds.getDatasetTitle());
 			int citationNum = ds.getCitationNum();
 			String query;
 			if (!isDatasetExist(datasetCode)) {
@@ -309,7 +340,7 @@ public class UtilityDao {
 				Integer datasetNum = getDatasetNum(datasetCode);
 				Integer relationshipTypeNum = 3;
 				//save to table citation_dataset
-				query = "INSERT INTO citation_dataset(citation_num,dataset_num,relationship_type_num) VALUES('"+citationNum+"',"+datasetNum+",'"+relationshipTypeNum+"')";
+				query = "INSERT INTO citation_dataset(citation_num,dataset_num,relationship_type_num) VALUES("+citationNum+","+datasetNum+","+relationshipTypeNum+")";
 				DatabaseUtil.update(query);
 			}			
 	
@@ -318,18 +349,18 @@ public class UtilityDao {
 	
 	public static void saveSamplingFeature (SamplingFeature samplingFeature) {
 		String sfCode = samplingFeature.getSamplingFeatureCode();
-		String sfName = samplingFeature.getSamplingFeatureName();
+		String sfName = formatQueryString(samplingFeature.getSamplingFeatureName());
 		String sfParentCode = samplingFeature.getParentSamplingFeatureCode();
-		String sfComment = samplingFeature.getSamplingFeatureComment();
+		String sfComment = formatQueryString(samplingFeature.getSamplingFeatureComment());
 		Integer sfTypeNum = samplingFeature.getSamplingFeatureTypeNum();
 		
 		String query;
 		if (!isSamplingFeatureExist(sfCode, sfTypeNum)) {
 			//save to table sampling_feature
 			if(sfComment == null) {
-				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"',"+sfComment+")";
+				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES("+sfTypeNum+",'"+sfCode+"','"+sfName+"',"+sfComment+")";
 			} else {
-				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES('"+sfTypeNum+"','"+sfCode+"','"+sfName+"','"+sfComment+"')";
+				query = "INSERT INTO sampling_feature(sampling_feature_type_num,sampling_feature_code,sampling_feature_name,sampling_feature_description) VALUES("+sfTypeNum+",'"+sfCode+"','"+sfName+"','"+sfComment+"')";
 			}
 			DatabaseUtil.update(query);
 			
@@ -338,7 +369,8 @@ public class UtilityDao {
 				Integer sfParentNum = getSamplingFeatureNum(sfParentCode,MoonDBType.SAMPLING_FEATURE_TYPE_SPECIMEN.getValue()); //Parent sampling feature must be specimen
 				Integer relationshipTypeNum = 9;  //isSubSampleOf
 				//save to table related_feature
-				query = "INSERT INTO related_feature(sampling_feature_num,related_sampling_feature_num,relationship_type_num) VALUES('"+sfNum+"',"+sfParentNum+",'"+relationshipTypeNum+"')";
+				query = "INSERT INTO related_feature(sampling_feature_num,related_sampling_feature_num,relationship_type_num) VALUES("+sfNum+","+sfParentNum+","+relationshipTypeNum+")";
+				//System.out.println(query);
 				DatabaseUtil.update(query);
 			}
 		}
@@ -354,14 +386,14 @@ public class UtilityDao {
 	
 	
 	public static void saveAction (Action action) {
-		String actionName = action.getActionName();
+		String actionName = formatQueryString(action.getActionName());
 		int actionTypeNum = action.getActionTypeNum();
 		int methodNum = action.getMethodNum();
 		
 		String query;
 		if (!isActionExist(actionTypeNum, methodNum, actionName)) {
 			//save to table action
-			query = "INSERT INTO action(action_type_num,method_num,action_name) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName +"')";
+			query = "INSERT INTO action(action_type_num,method_num,action_name) VALUES("+actionTypeNum+","+methodNum+",'"+actionName +"')";
 			DatabaseUtil.update(query);
 		}	
 	}
@@ -370,15 +402,15 @@ public class UtilityDao {
 		List<Action> actionList = actions.getActions();
 	
 		for(Action action: actionList) {
-			String actionName = action.getActionName();
-			String actionDescription = action.getActionDesctription();
+			String actionName = formatQueryString(action.getActionName());
+			String actionDescription = formatQueryString(action.getActionDesctription());
 			int actionTypeNum = action.getActionTypeNum();
 			int methodNum = action.getMethodNum();
 			int datasetNum = action.getDatasetNum();
 			String query;
 			if (!isActionExist(methodNum,datasetNum,actionTypeNum)) {
 				//save to table action
-				query = "INSERT INTO action(action_type_num,method_num,action_name,action_description,dataset_num) VALUES('"+actionTypeNum+"','"+methodNum+"','"+actionName+"','"+actionDescription+"','"+datasetNum+"')";
+				query = "INSERT INTO action(action_type_num,method_num,action_name,action_description,dataset_num) VALUES("+actionTypeNum+","+methodNum+",'"+actionName+"','"+actionDescription+"',"+datasetNum+")";
 				DatabaseUtil.update(query);
 			}			
 	
@@ -387,7 +419,7 @@ public class UtilityDao {
 	
 	public static void saveFeatureAction(int samplingFeatureNum, int actionNum) {
 		if (!isFeatureActionExist(samplingFeatureNum, actionNum)) {
-			String query = "INSERT INTO feature_action(sampling_feature_num, action_num) values('" + samplingFeatureNum +"','" + actionNum + "')";
+			String query = "INSERT INTO feature_action(sampling_feature_num, action_num) values(" + samplingFeatureNum +"," + actionNum + ")";
 			DatabaseUtil.update(query);	
 		}
 	}
@@ -398,20 +430,20 @@ public class UtilityDao {
 		int valueCount = 1;
 		//String valueType = "numeric";
 		if (!isResultExist(featureActionNum, variableNum)) {
-			String query = "INSERT INTO result(feature_action_num, result_type_num, variable_num, processing_level_num, value_count, value_type) values('" + featureActionNum + "','" + resultTypeNum + "','" + variableNum + "','" + processingLevelNum + "','" + valueCount + "','" + valueType + "')";
+			String query = "INSERT INTO result(feature_action_num, result_type_num, variable_num, processing_level_num, value_count, value_type) values(" + featureActionNum + "," + resultTypeNum + "," + variableNum + "," + processingLevelNum + "," + valueCount + ",'" + valueType + "')";
 			DatabaseUtil.update(query);
 		}
 	}
 	
 	public static void saveNumericData(int resultNum, double value, int unitNum) {
 		if (!isNumericDataExist(resultNum, value, unitNum)) {
-			String query = "INSERT INTO numeric_data(result_num, value_meas, unit_num) values('" + resultNum + "','" + value + "','" + unitNum + "')";
+			String query = "INSERT INTO numeric_data(result_num, value_meas, unit_num) values(" + resultNum + "," + value + "," + unitNum + ")";
 			DatabaseUtil.update(query);
 		}
 	}
 	
 	public static void saveTextData (int resultNum, String value, String note) {
-		String query = "INSERT INTO text_data(result_num, text_data_value, text_data_note) values('" + resultNum + "','" + value + "','" + note + "')";
+		String query = "INSERT INTO text_data(result_num, text_data_value, text_data_note) values(" + resultNum + ",'" + value + "','" + note + "')";
 		DatabaseUtil.update(query);
 	}
 	
@@ -421,7 +453,7 @@ public class UtilityDao {
 		for(Method method: methodList) {
 			String methodTech = method.getMethodTechnique();
 			Integer methodLabNum = method.getMethodLabNum();
-			String methodComment = method.getMethodComment();
+			String methodComment = formatQueryString(method.getMethodComment());
 			String methodName = method.getMethodName();
 			Integer methodTypeNum = method.getMethodTypeNum();
 			
@@ -429,16 +461,16 @@ public class UtilityDao {
 			if(!isMethodExist(methodTech,methodLabNum,methodComment)) {
 				//save to table method
 				if(methodComment == null && methodLabNum != null) {
-					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"',"+methodComment +",'" + methodName+"')";
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES("+ methodTypeNum + ",'"+ methodTech+"',"+methodLabNum+","+methodComment +",'" + methodName+"')";
 
 				} else if (methodComment == null && methodLabNum == null) {
-					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"',"+methodLabNum+","+methodComment +",'" + methodName+"')";
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES("+ methodTypeNum + ",'"+ methodTech+"',"+methodLabNum+","+methodComment +",'" + methodName+"')";
 
 				} else if (methodComment != null && methodLabNum == null) {
-					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"',"+methodLabNum+",'"+methodComment +"','" + methodName+"')";
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES("+ methodTypeNum + ",'"+ methodTech+"',"+methodLabNum+",'"+methodComment +"','" + methodName+"')";
 
 				} else {
-					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES('"+ methodTypeNum + "','"+ methodTech+"','"+methodLabNum+"','"+methodComment +"','" + methodName+"')";
+					query = "INSERT INTO method(method_type_num, method_code,organization_num,method_description, method_name) VALUES("+ methodTypeNum + ",'"+ methodTech+"',"+methodLabNum+",'"+methodComment +"','" + methodName+"')";
 				}
 				
 				DatabaseUtil.update(query);
@@ -448,6 +480,7 @@ public class UtilityDao {
 	}
 	
 	public static boolean isAnnotationExist(int annotationTypeNum, String annotationText, int citationNum) {
+		annotationText = formatQueryString(annotationText);
 		String query = "SELECT COUNT(*) FROM annotation WHERE annotation_type_num='" + annotationTypeNum + "' AND annotation_text='"+annotationText + "' AND data_source_num='" + citationNum +"'";
 		Long count = (Long)DatabaseUtil.getUniqueResult(query);
 		if (count >0)
@@ -457,11 +490,13 @@ public class UtilityDao {
 	}
 	
 	public static Integer getAnnotationNum (int annotationTypeNum, String annotationText, int citationNum) {
+		annotationText = formatQueryString(annotationText);
 		String query = "SELECT annotation_num FROM annotation WHERE annotation_type_num='" + annotationTypeNum + "' AND annotation_text='" + annotationText + "' AND data_source_num='" + citationNum + "'";
 		return (Integer)DatabaseUtil.getUniqueResult(query);
 	}
 	
 	public static void saveAnnotation(int annotationTypeNum, String annotationText, int citationNum) {
+		annotationText = formatQueryString(annotationText);
 		if (!isAnnotationExist(annotationTypeNum, annotationText, citationNum)) {
 			String query = "INSERT INTO annotation(annotation_type_num, annotation_text, data_source_num) values('" + annotationTypeNum + "','" + annotationText + "','" + citationNum + "')";
 			DatabaseUtil.update(query);
@@ -573,7 +608,6 @@ public class UtilityDao {
 		for(Integer dsNum : dsNums) {
 
 			List<Integer> rsNums = getResultNums(dsNum);
-			
 			query = "DELETE FROM dataset_result where dataset_num='" + dsNum + "'";
 			queries.add(query);
 			

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -81,6 +82,39 @@ public class Echecker {
 		return result;
 	}
 	
+	private static boolean methodCheckPass (HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
+		String content;
+		boolean result = true;
+		
+		HSSFSheet sheet = workbook.getSheet("METHODS");
+		int beginRowNum = RowCellPos.METHODS_BEGIN_ROW_NUM.getValue();
+		int lastRowNum = XlsParser.getLastRowNum(workbook, "METHODS",beginRowNum,RowCellPos.METHODS_END_SYMBOL_COL_NUM.getValue());
+		ArrayList<String> methodCodeList = new ArrayList<String>();
+		for (int i = beginRowNum; i < lastRowNum; i++) {
+			HSSFRow row = sheet.getRow(i);
+			String methodCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1))); 
+			methodCodeList.add(methodCode);
+		}
+		
+		String[] methods = XlsParser.getCVCodes(workbook, sheetName, "Method");
+		for (int j=0; j< methods.length; j++) {
+			if (methods[j] != null) {
+				if (!methodCodeList.contains(methods[j])){
+		        	content = "Method code <" + methods[j] +"> in the sheet METHODS" + " not found";
+		        	writeLog(bw, content);
+		        	result = false;
+				}				
+			} else {
+	        	content = "Method code in the sheet " + sheetName + "at column " + j + " is null";
+	        	writeLog(bw, content);
+	        	result = false;
+			}
+
+		}
+		
+		return result;
+	}
+	
 	private static boolean variableCheckPass(HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
 		String content;
 		boolean result = true;
@@ -114,6 +148,77 @@ public class Echecker {
         		result = false;
 			}
 		}			
+		return result;
+	}
+	private static boolean datasetCheckPass (HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
+		String content;
+		boolean result = true;
+		
+		HSSFSheet sheet = workbook.getSheet("TABLE_TITLES");
+		int beginRowNum = RowCellPos.TABLE_TITLES_BEGIN_ROW_NUM.getValue();
+		int lastRowNum = XlsParser.getLastRowNum(workbook, "TABLE_TITLES",beginRowNum,RowCellPos.TABLE_TILES_END_SYMBOL_COL_NUM.getValue());
+		ArrayList<String> dsCodeList = new ArrayList<String>();
+		for (int i = beginRowNum; i < lastRowNum; i++) {
+			HSSFRow row = sheet.getRow(i);
+			String dsCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(0))); 
+			dsCodeList.add(dsCode);
+		}
+		
+		Integer rowStart = RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue();
+		Integer endSymbolColNum = RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue();
+		Integer rowEnd = XlsParser.getLastRowNum(workbook, sheetName, rowStart, endSymbolColNum);
+		for (int j=rowStart; j<rowEnd; j++) {
+			HSSFRow row = workbook.getSheet(sheetName).getRow(j);
+			String ds = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1)));
+			if (ds != null) {
+				if (!dsCodeList.contains(ds)){
+		        	content = "Dataset code <" + ds +"> in the sheet TABLE_TITLES" + " not found";
+		        	writeLog(bw, content);
+		        	result = false;
+				}				
+			} else {
+	        	content = "dataset code in the sheet " + sheetName + "at row " + j + " is null";
+	        	writeLog(bw, content);
+	        	result = false;
+			}
+		}	
+		
+		return result;
+	}
+
+	private static boolean sfNameCheckPass (HSSFWorkbook workbook, String sheetName,BufferedWriter bw) throws IOException {
+		String content;
+		boolean result = true;
+		
+		HSSFSheet sheet = workbook.getSheet("SAMPLES");
+		int beginRowNum = RowCellPos.SAMPLES_BEGIN_ROW_NUM.getValue();
+		int lastRowNum = XlsParser.getLastRowNum(workbook, "SAMPLES",beginRowNum,RowCellPos.SAMPLES_DATA_END_SYMBOL_COL_NUM.getValue());
+		ArrayList<String> sfCodeList = new ArrayList<String>();
+		for (int i = beginRowNum; i < lastRowNum; i++) {
+			HSSFRow row = sheet.getRow(i);
+			String sfCode = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(1))); 
+			sfCodeList.add(sfCode);
+		}
+		
+		Integer rowStart = RowCellPos.RMI_DATA_BEGIN_ROW_NUM.getValue();
+		Integer endSymbolColNum = RowCellPos.RMI_DATA_END_SYMBOL_COL_NUM.getValue();
+		Integer rowEnd = XlsParser.getLastRowNum(workbook, sheetName, rowStart, endSymbolColNum);
+		for (int j=rowStart; j<rowEnd; j++) {
+			HSSFRow row = workbook.getSheet(sheetName).getRow(j);
+			String sf = XlsParser.formatString(XlsParser.getCellValueString(row.getCell(2)));
+			if (sf != null) {
+				if (!sfCodeList.contains(sf)){
+		        	content = "Sample name <" + sf +"> in the sheet SAMPLES" + " not found";
+		        	writeLog(bw, content);
+		        	result = false;
+				}				
+			} else {
+	        	content = "Sample name in the sheet " + sheetName + "at row " + j + " is null";
+	        	writeLog(bw, content);
+	        	result = false;
+			}
+		}	
+		
 		return result;
 	}
 	
@@ -242,9 +347,14 @@ public class Echecker {
 		        	}
 		        	
 		        	//Sheet ROCKS checking
+	        		if (!datasetCheckPass(workbook,"ROCKS",bw))
+	        			result = false;
+	        		if (!sfNameCheckPass(workbook,"ROCKS",bw))
+	        			result = false;
 	        		if (!variableCheckPass(workbook,"ROCKS",bw))
 	        			result = false;
-	        		
+	        		if(!methodCheckPass(workbook,"ROCKS",bw))
+	        			result = false;	   
 	        		//Unit code checking
 	        		if (!unitCheckPass(workbook,"ROCKS",bw))
 	        			result = false;
@@ -279,9 +389,14 @@ public class Echecker {
 		        	*/
 		        	//Sheet MINERALS checking
 	        		//Variable code checking
+	        		if (!datasetCheckPass(workbook,"MINERALS",bw))
+	        			result = false;
+	        		if (!sfNameCheckPass(workbook,"MINERALS",bw))
+	        			result = false;
 	        		if(!variableCheckPass(workbook,"MINERALS",bw))
 	        			result = false;
-	        		
+	        		if(!methodCheckPass(workbook,"MINERALS",bw))
+	        			result = false;	   
 	        		//Unit code checking
 	        		if(!unitCheckPass(workbook,"MINERALS",bw))
 	        			result = false;
@@ -319,9 +434,14 @@ public class Echecker {
 	        		
 		        	//Sheet INCLUSIONS checking
 	        		//Variable code checking
+	        		if (!datasetCheckPass(workbook,"INCLUSIONS",bw))
+	        			result = false;
+	        		if (!sfNameCheckPass(workbook,"INCLUSIONS",bw))
+	        			result = false;
 	        		if(!variableCheckPass(workbook,"INCLUSIONS",bw))
 	        			result = false;
-	        		
+	        		if(!methodCheckPass(workbook,"INCLUSIONS",bw))
+	        			result = false;	        		
 	        		//Unit code checking
 	        		if (!unitCheckPass(workbook,"INCLUSIONS",bw)) 
 	        			result = false;

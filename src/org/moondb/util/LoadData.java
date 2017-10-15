@@ -35,7 +35,7 @@ public class LoadData {
 	}
 
 	private static Integer saveData(HSSFWorkbook workbook, String sheetName, String moondbNum, Methods methods, Datasets datasets, Integer baseNum) {
-		int recordCounts = 0;
+		Integer recordCounts = 0;
 		SamplingFeatures samplingFeatures = SamplingFeatureParser.parseSamplingFeature(workbook, sheetName, moondbNum, baseNum);
 		if (samplingFeatures.getCounts() != 0) {
 			UtilityDao.saveSamplingFeatures(samplingFeatures);
@@ -188,7 +188,7 @@ public class LoadData {
 				
 					inputStream.close();
 				}
-				
+				inputStream.close();
 			}
 		}	
 	}

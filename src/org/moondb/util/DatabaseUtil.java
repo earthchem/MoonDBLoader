@@ -123,6 +123,7 @@ public class DatabaseUtil {
             	 record = rs.getObject(1);
     	} catch (SQLException e) { 
        	 	System.err.println(e);
+       	 	System.err.println(e.getMessage());
         } catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
