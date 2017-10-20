@@ -1,10 +1,13 @@
 package org.moondb.dao;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.moondb.model.Action;
 import org.moondb.model.Actions;
+import org.moondb.model.Author;
+import org.moondb.model.Citation;
 import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
 import org.moondb.model.Method;
@@ -549,6 +552,145 @@ public class UtilityDao {
 			String query = "INSERT INTO feature_of_interest(sampling_feature_num,feature_of_interest_cv_num) values('" + sfNum + "','" + foitNum + "')";
 			DatabaseUtil.update(query);
 		}
+	}
+	
+	
+	//get all samplingFeatures
+	public static List<Integer> getSFNums() {
+		List<Integer> samplingFeatureNums = new ArrayList<Integer>();
+		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_type_num=1 ORDER BY sampling_feature_num ASC";
+		List<Object []> sfNums = DatabaseUtil.getRecords(query);
+		for (Object [] sfNum : sfNums) {
+			samplingFeatureNums.add((Integer)sfNum[0]);
+		}
+		return samplingFeatureNums;
+	}
+	
+	//get child sampling featues
+	public static List<String> getChildSamplingFeatures(int samplingFeatureNum) {
+		List<String> childSfCodes = new ArrayList<String>();
+		//get child_sampling_feature
+		String query = "SELECT sf.sampling_feature_code from related_feature rf join sampling_feature sf on rf.sampling_feature_num=sf.sampling_feature_num where rf.related_sampling_feature_num="+ samplingFeatureNum +" and sf.sampling_feature_type_num=1";
+		List<Object []> sfCodes = DatabaseUtil.getRecords(query);
+		for (Object [] sfCode : sfCodes) {
+			childSfCodes.add((String)sfCode[0]);
+		}
+		return childSfCodes;
+	}
+	
+	//get analysis results by samplingFeatureNum
+	public static List<Object []> getAnalysisResuts(int samplingFeatureNum) {
+		String query = "SELECT distinct sampling_feature_num,sampling_feature_name,analysis_comment,dataset_code,dataset_title,citation_code FROM view_analysis where parent_sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> results = DatabaseUtil.getRecords(query);
+		return results;
+	}
+	
+	//get analysis results by samplingFeatureNum
+	public static List<Object []> getAnalysisData(int samplingFeatureNum) {
+		String query = "SELECT variable_code,value,unit,method_code,lab_name,method_description FROM view_analysis where sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> results = DatabaseUtil.getRecords(query);
+		return results;
+	}
+	
+    public static Citation getCitation(String citationCode) {
+    	Citation citation = new Citation();
+    	String query = "SELECT title,publication_year,journal,issue,volume,pages,citation_type,citation_num from citation where citation_code='" + citationCode + "'";
+    	List<Object []> ct = DatabaseUtil.getRecords(query);
+    	citation.setCitationCode(citationCode);
+    	citation.setRefTitle((String) ct.get(0)[0]);
+    	citation.setRefYear((Integer) ct.get(0)[1]);
+    	citation.setRefJournal((String) ct.get(0)[2]);
+    	citation.setRefIssue((String) ct.get(0)[3]);
+    	citation.setRefVolume((String) ct.get(0)[4]);
+    	citation.setRefPages((String) ct.get(0)[5]);
+    	citation.setRefType((String) ct.get(0)[6]);
+    	citation.setCitationNum((Integer) ct.get(0)[7]);
+    	
+    	query = "SELECT citation_external_identifier FROM  citation_external_identifier WHERE external_identifier_system_num=3 AND citation_num=" + citation.getCitationNum();
+    	String refDOI = (String) DatabaseUtil.getUniqueResult(query);
+    	citation.setRefDOI(refDOI);
+    	
+    	query = "select first_name,last_name,author_order from author_list al join person p on al.person_num=p.person_num where citation_num=" + citation.getCitationNum();
+    	List<Object []> refAuthors = DatabaseUtil.getRecords(query);
+    	List<Author> authors = new ArrayList<Author>();
+    	for (Object[] refAuthor: refAuthors) {
+    		Author author = new Author();
+    		author.setFirstName((String) refAuthor[0]);
+    		author.setLastName((String) refAuthor[1]);
+    		author.setFullName(author.getLastName()+", "+ author.getFirstName());
+    		authors.add(author);
+    	}
+    	citation.setAuthors(authors);
+    	return citation;   	
+    }
+	//get samplingFeature by samplingFeatureNum
+	public static SamplingFeature getSamplingFeature(int samplingFeatureNum) {
+		SamplingFeature samplingFeature = new SamplingFeature();
+		String query = "SELECT sf.sampling_feature_code,sf.sampling_feature_name,sf.sampling_feature_description,sft.sampling_feature_type_name FROM sampling_feature sf JOIN sampling_feature_type sft ON sf.sampling_feature_type_num=sft.sampling_feature_type_num WHERE sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> sf = DatabaseUtil.getRecords(query);
+		
+		samplingFeature.setSamplingFeatureCode((String) sf.get(0)[0]);
+		samplingFeature.setSamplingFeatureName((String) sf.get(0)[1]);
+		samplingFeature.setSamplingFeatureComment((String) sf.get(0)[2]);
+		samplingFeature.setSamplingFeatureTypeName((String) sf.get(0)[3]);
+
+		
+		//get parent_sampling_feature
+		query = "SELECT sf.sampling_feature_code from related_feature rf join sampling_feature sf on rf.related_sampling_feature_num=sf.sampling_feature_num where rf.sampling_feature_num="+ samplingFeatureNum;
+		String sfParentSfCode = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setParentSamplingFeatrureCode(sfParentSfCode);
+
+		//get child_sampling_feature
+		List<String> childSfCodes = new ArrayList<String>();
+		query = "SELECT sf.sampling_feature_code from related_feature rf join sampling_feature sf on rf.sampling_feature_num=sf.sampling_feature_num where rf.related_sampling_feature_num="+ samplingFeatureNum + " AND sf.sampling_feature_type_num=1";
+		List<Object []> sfCodes = DatabaseUtil.getRecords(query);
+		for (Object [] sfCode : sfCodes) {
+			childSfCodes.add((String)sfCode[0]);
+		}
+		samplingFeature.setChildSfCodes(childSfCodes);
+
+		//get sampling_feature_material_code and sampling_feature_material_name
+		query = "select material_code,material_name from sampling_feature_material sfm join material mt on sfm.material_num=mt.material_num  where sfm.sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> sfm = DatabaseUtil.getRecords(query);
+		if(sfm.size() != 0) {
+			samplingFeature.setMaterialCode((String) sfm.get(0)[0]);
+			samplingFeature.setMaterialName((String) sfm.get(0)[1]);
+		}
+		
+		//get taxon name and parent taxon name
+		query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num where sftc.sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> sftc = DatabaseUtil.getRecords(query);
+		if(sftc.size() != 0) {
+			samplingFeature.setTaxonName((String) sftc.get(0)[0]);
+			samplingFeature.setParentTaxonName((String) sftc.get(0)[1]);
+		}
+		
+		//get mission name
+		query ="SELECT action_name from sampling_feature sf join feature_action fa on sf.sampling_feature_num=fa.sampling_feature_num join action a on fa.action_num=a.action_num where action_type_num=11 and sf.sampling_feature_num=" + samplingFeatureNum;
+		String missionName = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setMissionName(missionName);
+		
+		//get sampling method name
+		query = "SELECT me.method_name from sampling_feature sf join feature_action fa on sf.sampling_feature_num=fa.sampling_feature_num join action a on fa.action_num=a.action_num join method me on a.method_num=me.method_num where action_type_num=21 and sf.sampling_feature_num=" + samplingFeatureNum;
+		String samplingTechniqueName = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setSamplingTechniqueName(samplingTechniqueName);
+
+		//get landmark station
+		query = "select foic.feature_of_interest_cv_name from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num where feature_of_interest_type_num=1 and sf.sampling_feature_num=" + samplingFeatureNum;
+		String landMark = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setLandMark(landMark);
+		
+		//get lunar station
+		query = "select foic.feature_of_interest_cv_name from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num where feature_of_interest_type_num=2 and sf.sampling_feature_num=" + samplingFeatureNum;
+		String lunarStation = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setLunarStation(lunarStation);
+		
+		//get return contationer
+		query = "select foic.feature_of_interest_cv_name from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num where feature_of_interest_type_num=3 and sf.sampling_feature_num=" + samplingFeatureNum;
+		String returnContainer = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setReturnContainer(returnContainer);
+		
+		return samplingFeature;
 	}
 	
 	public static List<Integer> getDatasetNums(int citationNum) {

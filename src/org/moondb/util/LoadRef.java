@@ -20,7 +20,7 @@ public class LoadRef {
 		try {
 			
 			System.out.println("Start loading citations into Database.");
-			reader =  new BufferedReader(new InputStreamReader(new FileInputStream("refdata\\moondbcitation.txt"),Charset.forName("UTF-8")));
+			reader =  new BufferedReader(new InputStreamReader(new FileInputStream("refdata/moondbcitation.txt"),Charset.forName("UTF-8")));
 
 		    String line;
 		    ArrayList<String> entry = new ArrayList<String>();
