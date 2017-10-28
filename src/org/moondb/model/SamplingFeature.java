@@ -26,7 +26,7 @@ public class SamplingFeature {
 	private String samplingTechniqueName;
 	private String lunarStation;
 	private String returnContainer;
-	private String landMark;
+	private Landmark landMark;
     private List<String> childSfCodes;
 	
     
@@ -38,11 +38,11 @@ public class SamplingFeature {
 		this.childSfCodes = childSfCodes;
 	}
 	
-	public String getLandMark() {
+	public Landmark getLandMark() {
 		return landMark;
 	}
 	
-	public void setLandMark(String landMark) {
+	public void setLandMark(Landmark landMark) {
 		this.landMark = landMark;
 	}
 	

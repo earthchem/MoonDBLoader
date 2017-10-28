@@ -1,6 +1,5 @@
 package org.moondb.dao;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +9,7 @@ import org.moondb.model.Author;
 import org.moondb.model.Citation;
 import org.moondb.model.Dataset;
 import org.moondb.model.Datasets;
+import org.moondb.model.Landmark;
 import org.moondb.model.Method;
 import org.moondb.model.Methods;
 import org.moondb.model.MoonDBType;
@@ -558,7 +558,7 @@ public class UtilityDao {
 	//get all samplingFeatures
 	public static List<Integer> getSFNums() {
 		List<Integer> samplingFeatureNums = new ArrayList<Integer>();
-		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_type_num=1 ORDER BY sampling_feature_num ASC";
+		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_type_num=1 and sampling_feature_num>46335 ORDER BY sampling_feature_num ASC";
 		List<Object []> sfNums = DatabaseUtil.getRecords(query);
 		for (Object [] sfNum : sfNums) {
 			samplingFeatureNums.add((Integer)sfNum[0]);
@@ -593,6 +593,7 @@ public class UtilityDao {
 	}
 	
     public static Citation getCitation(String citationCode) {
+    	citationCode = formatQueryString(citationCode);
     	Citation citation = new Citation();
     	String query = "SELECT title,publication_year,journal,issue,volume,pages,citation_type,citation_num from citation where citation_code='" + citationCode + "'";
     	List<Object []> ct = DatabaseUtil.getRecords(query);
@@ -618,6 +619,7 @@ public class UtilityDao {
     		author.setFirstName((String) refAuthor[0]);
     		author.setLastName((String) refAuthor[1]);
     		author.setFullName(author.getLastName()+", "+ author.getFirstName());
+    		author.setAuthorOrder((Integer) refAuthor[2]);
     		authors.add(author);
     	}
     	citation.setAuthors(authors);
@@ -650,7 +652,12 @@ public class UtilityDao {
 		samplingFeature.setChildSfCodes(childSfCodes);
 
 		//get sampling_feature_material_code and sampling_feature_material_name
-		query = "select material_code,material_name from sampling_feature_material sfm join material mt on sfm.material_num=mt.material_num  where sfm.sampling_feature_num=" + samplingFeatureNum;
+		if (sfParentSfCode != null) {
+			query = "select material_code,material_name from sampling_feature_material sfm join material mt on sfm.material_num=mt.material_num join sampling_feature sf ON sfm.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_code='" + sfParentSfCode + "'";
+
+		} else {
+			query = "select material_code,material_name from sampling_feature_material sfm join material mt on sfm.material_num=mt.material_num  where sfm.sampling_feature_num=" + samplingFeatureNum;
+		}
 		List<Object []> sfm = DatabaseUtil.getRecords(query);
 		if(sfm.size() != 0) {
 			samplingFeature.setMaterialCode((String) sfm.get(0)[0]);
@@ -658,7 +665,12 @@ public class UtilityDao {
 		}
 		
 		//get taxon name and parent taxon name
-		query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num where sftc.sampling_feature_num=" + samplingFeatureNum;
+		if(sfParentSfCode != null) {
+			query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num join sampling_feature sf ON sftc.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_code='" + sfParentSfCode + "'";
+
+		} else {
+			query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num where sftc.sampling_feature_num=" + samplingFeatureNum;
+		}
 		List<Object []> sftc = DatabaseUtil.getRecords(query);
 		if(sftc.size() != 0) {
 			samplingFeature.setTaxonName((String) sftc.get(0)[0]);
@@ -666,7 +678,13 @@ public class UtilityDao {
 		}
 		
 		//get mission name
-		query ="SELECT action_name from sampling_feature sf join feature_action fa on sf.sampling_feature_num=fa.sampling_feature_num join action a on fa.action_num=a.action_num where action_type_num=11 and sf.sampling_feature_num=" + samplingFeatureNum;
+		//copy mission info from parent if parent exist
+		if (sfParentSfCode != null) {
+			query ="SELECT action_name from sampling_feature sf join feature_action fa on sf.sampling_feature_num=fa.sampling_feature_num join action a on fa.action_num=a.action_num where action_type_num=11 and sf.sampling_feature_code='" + sfParentSfCode + "'";
+
+		} else {
+			query ="SELECT action_name from sampling_feature sf join feature_action fa on sf.sampling_feature_num=fa.sampling_feature_num join action a on fa.action_num=a.action_num where action_type_num=11 and sf.sampling_feature_num=" + samplingFeatureNum;
+		}
 		String missionName = (String) DatabaseUtil.getUniqueResult(query);
 		samplingFeature.setMissionName(missionName);
 		
@@ -676,9 +694,26 @@ public class UtilityDao {
 		samplingFeature.setSamplingTechniqueName(samplingTechniqueName);
 
 		//get landmark station
-		query = "select foic.feature_of_interest_cv_name from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num where feature_of_interest_type_num=1 and sf.sampling_feature_num=" + samplingFeatureNum;
-		String landMark = (String) DatabaseUtil.getUniqueResult(query);
-		samplingFeature.setLandMark(landMark);
+		query = "select foic.feature_of_interest_cv_name,foicei.feature_of_interest_cv_external_id,foicei.feature_of_interest_cv_external_identifier_url,public.st_y(foic.feature_of_interest_geometry),public.st_x(foic.feature_of_interest_geometry) from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num JOIN feature_of_interest_cv_external_identifier foicei ON foic.feature_of_interest_cv_num = foicei.feature_of_interest_cv_num where feature_of_interest_type_num=1 and sf.sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> lm = DatabaseUtil.getRecords(query); 
+		Landmark landmark = new Landmark();
+		if(lm.size() != 0) {
+			landmark.setLandmarkName((String) lm.get(0)[0]);
+			landmark.setGpnfID(Integer.parseInt((String) lm.get(0)[1]));
+			landmark.setGpnfURL((String) lm.get(0)[2]);
+			landmark.setLatitude((Double) lm.get(0)[3]);
+			landmark.setLongitude((Double) lm.get(0)[4]);	
+			samplingFeature.setLandMark(landmark);
+		} else {
+			landmark.setLandmarkName(null);
+			landmark.setGpnfID(null);
+			landmark.setGpnfURL(null);
+			landmark.setLatitude(null);
+			landmark.setLongitude(null);
+			samplingFeature.setLandMark(landmark);
+		}
+
+
 		
 		//get lunar station
 		query = "select foic.feature_of_interest_cv_name from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num where feature_of_interest_type_num=2 and sf.sampling_feature_num=" + samplingFeatureNum;

@@ -15,6 +15,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.moondb.dao.UtilityDao;
 import org.moondb.model.Author;
 import org.moondb.model.Citation;
+import org.moondb.model.Landmark;
 import org.moondb.model.SamplingFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +57,8 @@ public class ExportToXML {
 				
 				// landmark elements
 				Element landMark = doc.createElement("landMark");
-				landMark.appendChild(doc.createTextNode(formatString(samplingFeature.getLandMark())));
+				Landmark landmark = samplingFeature.getLandMark();
+				landMark.appendChild(doc.createTextNode(formatString(landmark.getLandmarkName())));
 				rootElement.appendChild(landMark);
 				
 				// station elements

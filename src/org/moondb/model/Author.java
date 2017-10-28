@@ -5,7 +5,14 @@ public class Author {
 	private String fullName;
 	private String firstName;
 	private String lastName;
+	private Integer authorOrder;
 	
+	public Integer getAuthorOrder() {
+		return authorOrder;
+	}
+	public void setAuthorOrder(Integer authorOrder) {
+		this.authorOrder = authorOrder;
+	}
 	
 	public String getFullName() {
 		return fullName;
