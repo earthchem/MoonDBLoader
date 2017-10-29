@@ -558,7 +558,7 @@ public class UtilityDao {
 	//get all samplingFeatures
 	public static List<Integer> getSFNums() {
 		List<Integer> samplingFeatureNums = new ArrayList<Integer>();
-		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_type_num=1 and sampling_feature_num>46335 ORDER BY sampling_feature_num ASC";
+		String query = "SELECT sampling_feature_num FROM sampling_feature WHERE sampling_feature_type_num=1 ORDER BY sampling_feature_num ASC";
 		List<Object []> sfNums = DatabaseUtil.getRecords(query);
 		for (Object [] sfNum : sfNums) {
 			samplingFeatureNums.add((Integer)sfNum[0]);
@@ -724,6 +724,21 @@ public class UtilityDao {
 		query = "select foic.feature_of_interest_cv_name from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num where feature_of_interest_type_num=3 and sf.sampling_feature_num=" + samplingFeatureNum;
 		String returnContainer = (String) DatabaseUtil.getUniqueResult(query);
 		samplingFeature.setReturnContainer(returnContainer);
+		
+		//get weight
+		query = "select (trim(to_char(nd.value_meas,'99999999999999999D999')) || ' '::text) || u.unit_abbreviation::text AS weight from sampling_feature sf LEFT JOIN (feature_action fa JOIN result r ON fa.feature_action_num = r.feature_action_num AND r.variable_num = 556 JOIN numeric_data nd ON r.result_num = nd.result_num JOIN unit u ON nd.unit_num = u.unit_num) ON fa.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_num=" + samplingFeatureNum;
+		String weight = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setWeight(weight);
+		
+		//get pristinity
+		query = "select trim(to_char(nd.value_meas,'99999999999999999D999')) || u.unit_abbreviation::text AS pristinity from sampling_feature sf LEFT JOIN (feature_action fa JOIN result r ON fa.feature_action_num = r.feature_action_num AND r.variable_num = 557 JOIN numeric_data nd ON r.result_num = nd.result_num JOIN unit u ON nd.unit_num = u.unit_num) ON fa.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_num=" + samplingFeatureNum;
+		String pristinity = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setPristinity(pristinity);
+		
+		//get pristinityDate
+		query = "select td.text_data_value AS pristinity_date from sampling_feature sf LEFT JOIN (feature_action fa JOIN result r ON fa.feature_action_num = r.feature_action_num AND r.variable_num = 558 JOIN text_data td ON r.result_num = td.result_num) ON fa.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_num=" + samplingFeatureNum;
+		String pristinityDate = (String) DatabaseUtil.getUniqueResult(query);
+		samplingFeature.setPristinityDate(pristinityDate);
 		
 		return samplingFeature;
 	}

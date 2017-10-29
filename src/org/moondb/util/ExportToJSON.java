@@ -25,16 +25,21 @@ public class ExportToJSON {
 				objSpecimen.put("specimenId", sfNum);
 				objSpecimen.put("specimenCode", samplingFeature.getSamplingFeatureCode());
 				objSpecimen.put("specimenName", samplingFeature.getSamplingFeatureName());
-					
+				objSpecimen.put("weight", samplingFeature.getWeight());
+				objSpecimen.put("pristinity", samplingFeature.getPristinity());
+				objSpecimen.put("pristinityDate", samplingFeature.getPristinityDate());
+
+
+				
 				JSONArray childSpecimenList = new JSONArray();
 				List<String> childSfCodes = samplingFeature.getChildSfCodes();
 				if(childSfCodes.size()>0) {
 					for(String childSfCode: childSfCodes) {
 						childSpecimenList.add(childSfCode);
 					}
-					objSpecimen.put("childSpecimens", childSpecimenList);
-				}
-					
+				} 
+				objSpecimen.put("childSpecimens", childSpecimenList);
+
 				objSpecimen.put("parentSpecimen", samplingFeature.getParentSamplingFeatureCode());
 				objSpecimen.put("mission", samplingFeature.getMissionName());
 					

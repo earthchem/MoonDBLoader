@@ -1,5 +1,6 @@
 package org.moondb.model;
 
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -28,8 +29,34 @@ public class SamplingFeature {
 	private String returnContainer;
 	private Landmark landMark;
     private List<String> childSfCodes;
-	
+    private String weight;
+    private String pristinity;
+    private String pristinityDate;
     
+	public String getWeight() {
+		return weight;
+	}
+    
+	public void setWeight(String weight) {
+		this.weight = weight;
+	}
+	
+	public String getPristinity() {
+		return pristinity;
+	}
+    
+	public void setPristinity(String pristinity) {
+		this.pristinity = pristinity;
+	}
+	
+	public String getPristinityDate() {
+		return pristinityDate;
+	}
+    
+	public void setPristinityDate(String pristinityDate) {
+		this.pristinityDate = pristinityDate;
+	}
+	
 	public List<String> getChildSfCodes() {
 		return childSfCodes;
 	}
