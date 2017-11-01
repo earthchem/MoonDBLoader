@@ -28,6 +28,7 @@ public class ExportToJSON {
 				objSpecimen.put("weight", samplingFeature.getWeight());
 				objSpecimen.put("pristinity", samplingFeature.getPristinity());
 				objSpecimen.put("pristinityDate", samplingFeature.getPristinityDate());
+				System.out.println(samplingFeature.getPristinityDate());
 
 
 				
@@ -62,61 +63,90 @@ public class ExportToJSON {
 				objSpecimen.put("specimenDescription", samplingFeature.getSamplingFeatureComment());
 
 				JSONArray resultsArr = new JSONArray();
-				List<Object[]> results = UtilityDao.getAnalysisResuts(sfNum);
-				if(results.size()>0) {
-					for(Object[] result: results) {
-						JSONObject objResult = new JSONObject();
-						objResult.put("sampleName", result[1].toString());
-						objResult.put("analysisComment", result[2]);
-						objResult.put("datasetCode", result[3].toString());
-						objResult.put("datasetTitle", result[4].toString());
-						Citation citation = UtilityDao.getCitation((String) result[5]);
-						JSONObject objCitation = new JSONObject();
-						objCitation.put("citationCode", citation.getCitationCode());
-						objCitation.put("title", citation.getRefTitle());
-						objCitation.put("year", citation.getRefYear());
-						objCitation.put("journal", citation.getRefJournal());
-						objCitation.put("issue", citation.getRefIssue());
-						objCitation.put("volume", citation.getRefVolume());
-						objCitation.put("pages", citation.getRefPages());
-						objCitation.put("type", citation.getRefType());
-						objCitation.put("DOI", citation.getRefDOI());
-							
-						JSONArray authorsArr = new JSONArray();
-						List<Author> authors = citation.getAuthors();
-						for(Author author: authors) {
-							JSONObject objAuthor = new JSONObject();
-							objAuthor.put("firstName", author.getFirstName());
-							objAuthor.put("lastName", author.getLastName());
-							objAuthor.put("fullName", author.getFullName());
-							objAuthor.put("authorOrder", author.getAuthorOrder());
-							authorsArr.add(objAuthor);
-						}
-						objCitation.put("authors", authorsArr);
-						objResult.put("citation", objCitation);
-							
-						JSONArray dataArr = new JSONArray();
-						List<Object[]> dataElements = UtilityDao.getAnalysisData((int) result[0]);
-						for(Object[] dataElement: dataElements) {
-							JSONObject objDataResult = new JSONObject();
-							objDataResult.put("variable", dataElement[0].toString());
-							objDataResult.put("value", dataElement[1].toString());
-							objDataResult.put("unit", dataElement[2].toString());
-							objDataResult.put("method", dataElement[3].toString());
-							objDataResult.put("laboratory", dataElement[4]);
-							objDataResult.put("methodComment", dataElement[5]);
+				List<Integer> relatedSfns = UtilityDao.getRelatedSfNums(sfNum);
+				for(Integer relatedSfn: relatedSfns) {
+					List<Object[]> results = UtilityDao.getAnalysisResuts(relatedSfn);
 
-							dataArr.add(objDataResult);
-							//objDataResults.put("dataResults", dataArr);
-						
-						}
-						objResult.put("dataResults", dataArr);
+					if(results.size()>0) {
+						for(Object[] result: results) {
+							JSONObject objResult = new JSONObject();						
+							objResult.put("analysisMaterialCode", result[1].toString());
+							objResult.put("analysisMaterialName", result[2].toString());
+							List<Object[]> antResults = UtilityDao.getAnalysisAnnotation((int) result[0]);
+							if (!antResults.isEmpty()) {
+								Integer antTypeNum = (Integer) antResults.get(0)[0];
+								switch (antTypeNum) {
+								case 3:
+									objResult.put("analysisMaterialType", antResults.get(0)[1]);	
+									objResult.put("analysisTaxon", null);						
+									break;
+								case 5:
+									objResult.put("analysisMaterialType", "MINERAL");	
+									objResult.put("analysisTaxon", antResults.get(0)[1]);	
+									break;
+								case 9:
+									objResult.put("analysisMaterialType", "INCLUSION");	
+									objResult.put("analysisTaxon", antResults.get(0)[1]);	
+									break;
+								}								
+							} else {
+								objResult.put("analysisMaterialType", samplingFeature.getMaterialCode());	
+								objResult.put("analysisTaxon", samplingFeature.getTaxonName());	
+							}
 
-						resultsArr.add(objResult);
-						//objResults.put("analysisResult", objResult);
+							
+							objResult.put("analysisComment", result[3]);
+							objResult.put("datasetCode", result[4].toString());
+							objResult.put("datasetTitle", result[5].toString());
+							Citation citation = UtilityDao.getCitation((String) result[6]);
+							JSONObject objCitation = new JSONObject();
+							objCitation.put("citationCode", citation.getCitationCode());
+							objCitation.put("title", citation.getRefTitle());
+							objCitation.put("year", citation.getRefYear());
+							objCitation.put("journal", citation.getRefJournal());
+							objCitation.put("issue", citation.getRefIssue());
+							objCitation.put("volume", citation.getRefVolume());
+							objCitation.put("pages", citation.getRefPages());
+							objCitation.put("type", citation.getRefType());
+							objCitation.put("DOI", citation.getRefDOI());
+								
+							JSONArray authorsArr = new JSONArray();
+							List<Author> authors = citation.getAuthors();
+							for(Author author: authors) {
+								JSONObject objAuthor = new JSONObject();
+								objAuthor.put("firstName", author.getFirstName());
+								objAuthor.put("lastName", author.getLastName());
+								objAuthor.put("fullName", author.getFullName());
+								objAuthor.put("authorOrder", author.getAuthorOrder());
+								authorsArr.add(objAuthor);
+							}
+							objCitation.put("authors", authorsArr);
+							objResult.put("citation", objCitation);
+								
+							JSONArray dataArr = new JSONArray();
+							List<Object[]> dataElements = UtilityDao.getAnalysisData((int) result[0]);
+							for(Object[] dataElement: dataElements) {
+								JSONObject objDataResult = new JSONObject();
+								objDataResult.put("variable", dataElement[0].toString());
+								objDataResult.put("value", dataElement[1].toString());
+								objDataResult.put("unit", dataElement[2].toString());
+								objDataResult.put("method", dataElement[3].toString());
+								objDataResult.put("laboratory", dataElement[4]);
+								objDataResult.put("methodComment", dataElement[5]);
+
+								dataArr.add(objDataResult);
+								//objDataResults.put("dataResults", dataArr);
+							
+							}
+							objResult.put("dataResults", dataArr);
+
+							resultsArr.add(objResult);
+							//objResults.put("analysisResult", objResult);
+
+						}
 
 					}
-
+	
 				}
 				objSpecimen.put("analysisResults", resultsArr);
 

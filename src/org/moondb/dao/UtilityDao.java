@@ -577,10 +577,32 @@ public class UtilityDao {
 		}
 		return childSfCodes;
 	}
+	//get child sampling featues
+	public static List<Integer> getDescendantsSfNums(Integer samplingFeatureNum) {
+		List<Integer> childSfNums = new ArrayList<Integer>();
+		//get child_sampling_feature
+		String query = "SELECT sampling_feature_num from view_sfn_graph where sfn_path like '"+ samplingFeatureNum.toString() +",%'";
+		List<Object []> sfNums = DatabaseUtil.getRecords(query);
+		for (Object [] sfNum : sfNums) {
+			childSfNums.add((Integer)sfNum[0]);
+		}
+		return childSfNums;
+	}
+	
+	public static List<Integer> getRelatedSfNums(int sfNum){
+		List <Integer> results = new ArrayList<Integer>();
+		results.add(sfNum); //Add self
+		List<Integer> childSfNums = getDescendantsSfNums(sfNum);
+		for(Integer childSfNum: childSfNums) {
+			results.add(childSfNum);  //add descendants
+		}
+		return results;
+	}
+	
 	
 	//get analysis results by samplingFeatureNum
 	public static List<Object []> getAnalysisResuts(int samplingFeatureNum) {
-		String query = "SELECT distinct sampling_feature_num,sampling_feature_name,analysis_comment,dataset_code,dataset_title,citation_code FROM view_analysis where parent_sampling_feature_num=" + samplingFeatureNum;
+		String query = "SELECT distinct sampling_feature_num,sampling_feature_code,sampling_feature_name,analysis_comment,dataset_code,dataset_title,citation_code FROM view_analysis where parent_sampling_feature_num=" + samplingFeatureNum;
 		List<Object []> results = DatabaseUtil.getRecords(query);
 		return results;
 	}
@@ -588,6 +610,13 @@ public class UtilityDao {
 	//get analysis results by samplingFeatureNum
 	public static List<Object []> getAnalysisData(int samplingFeatureNum) {
 		String query = "SELECT variable_code,value,unit,method_code,lab_name,method_description FROM view_analysis where sampling_feature_num=" + samplingFeatureNum;
+		List<Object []> results = DatabaseUtil.getRecords(query);
+		return results;
+	}
+	
+	//get analysis results by samplingFeatureNum
+	public static List<Object []> getAnalysisAnnotation(int samplingFeatureNum) {
+		String query = "select annotation_type_num,annotation_text from sampling_feature_annotation sfa join annotation an on an.annotation_num=sfa.annotation_num  where annotation_type_num in (3,5,9) and sfa.sampling_feature_num=" + samplingFeatureNum;
 		List<Object []> results = DatabaseUtil.getRecords(query);
 		return results;
 	}
