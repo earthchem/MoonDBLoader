@@ -28,7 +28,6 @@ public class ExportToJSON {
 				objSpecimen.put("weight", samplingFeature.getWeight());
 				objSpecimen.put("pristinity", samplingFeature.getPristinity());
 				objSpecimen.put("pristinityDate", samplingFeature.getPristinityDate());
-				System.out.println(samplingFeature.getPristinityDate());
 
 
 				
@@ -56,10 +55,22 @@ public class ExportToJSON {
 				objSpecimen.put("lunarStation", samplingFeature.getLunarStation());
 				objSpecimen.put("returnContainer", samplingFeature.getReturnContainer());
 				objSpecimen.put("samplingTechnique", samplingFeature.getSamplingTechniqueName());
-				objSpecimen.put("materialCode", samplingFeature.getMaterialCode());
-				objSpecimen.put("materialName", samplingFeature.getMaterialName());
-				objSpecimen.put("taxonName", samplingFeature.getTaxonName());
-				objSpecimen.put("parentTaxonName", samplingFeature.getParentTaxonName());
+				//objSpecimen.put("materialCode", samplingFeature.getMaterialCode());
+				//objSpecimen.put("materialName", samplingFeature.getMaterialName());
+				//objSpecimen.put("taxonName", samplingFeature.getTaxonName());
+				//objSpecimen.put("parentTaxonName", samplingFeature.getParentTaxonName());
+				String specimenType = null;
+				if(samplingFeature.getMaterialCode() != null) {
+					if(samplingFeature.getTaxonName() != null) {
+						specimenType = samplingFeature.getMaterialCode() + "/" + samplingFeature.getParentTaxonName() + "/" + samplingFeature.getTaxonName();
+					} else {
+						specimenType = samplingFeature.getMaterialCode() + "/Not provided";
+					}
+				} else {
+					specimenType = "Unknown";
+				}
+				
+				objSpecimen.put("specimenType", specimenType);
 				objSpecimen.put("specimenDescription", samplingFeature.getSamplingFeatureComment());
 
 				JSONArray resultsArr = new JSONArray();
@@ -70,28 +81,30 @@ public class ExportToJSON {
 					if(results.size()>0) {
 						for(Object[] result: results) {
 							JSONObject objResult = new JSONObject();						
-							objResult.put("analysisMaterialCode", result[1].toString());
-							objResult.put("analysisMaterialName", result[2].toString());
+							objResult.put("analysisCode", result[1].toString());
+							objResult.put("analysisName", result[2].toString());
 							List<Object[]> antResults = UtilityDao.getAnalysisAnnotation((int) result[0]);
 							if (!antResults.isEmpty()) {
 								Integer antTypeNum = (Integer) antResults.get(0)[0];
 								switch (antTypeNum) {
 								case 3:
-									objResult.put("analysisMaterialType", antResults.get(0)[1]);	
-									objResult.put("analysisTaxon", null);						
+									objResult.put("analizedMaterial", antResults.get(0)[1]);	
+									//objResult.put("analysisTaxon", null);						
 									break;
 								case 5:
-									objResult.put("analysisMaterialType", "MINERAL");	
-									objResult.put("analysisTaxon", antResults.get(0)[1]);	
+									objResult.put("analizedMaterial", "MINERAL/"+antResults.get(0)[1]);	
+									//objResult.put("analysisTaxon", antResults.get(0)[1]);	
 									break;
 								case 9:
-									objResult.put("analysisMaterialType", "INCLUSION");	
-									objResult.put("analysisTaxon", antResults.get(0)[1]);	
+									objResult.put("analizedMaterial", "INCLUSION/"+antResults.get(0)[1]);	
+									//objResult.put("analysisTaxon", antResults.get(0)[1]);	
 									break;
 								}								
 							} else {
-								objResult.put("analysisMaterialType", samplingFeature.getMaterialCode());	
-								objResult.put("analysisTaxon", samplingFeature.getTaxonName());	
+								objResult.put("analizedMaterial", "Not provided");	
+
+								//objResult.put("analysisMaterialType", samplingFeature.getMaterialCode());	
+								//objResult.put("analysisTaxon", samplingFeature.getTaxonName());	
 							}
 
 							
