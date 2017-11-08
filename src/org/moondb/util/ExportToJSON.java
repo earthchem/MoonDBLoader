@@ -62,9 +62,13 @@ public class ExportToJSON {
 				String specimenType = null;
 				if(samplingFeature.getMaterialCode() != null) {
 					if(samplingFeature.getTaxonName() != null) {
-						specimenType = samplingFeature.getMaterialCode() + "/" + samplingFeature.getParentTaxonName() + "/" + samplingFeature.getTaxonName();
+						if(samplingFeature.getParentTaxonName() != null) {
+							specimenType = samplingFeature.getMaterialCode() + "/" + samplingFeature.getParentTaxonName() + "/" + samplingFeature.getTaxonName();
+						} else {
+							specimenType = samplingFeature.getMaterialCode() + "/"  + samplingFeature.getTaxonName();
+						}
 					} else {
-						specimenType = samplingFeature.getMaterialCode() + "/Not provided";
+						specimenType = samplingFeature.getMaterialCode();
 					}
 				} else {
 					specimenType = "Unknown";
@@ -168,8 +172,8 @@ public class ExportToJSON {
 				String fileName = "json/" + sfNum.toString() + ".json";
 				FileWriter file = new FileWriter(fileName);
 				file.write(objSpecimen.toJSONString());
-				System.out.println("Successfully Copied JSON Object to File...");
-				System.out.println("\nJSON Object: " + objSpecimen);
+				System.out.println("Successfully Copied JSON Object "+ sfNum.toString()  +" to File...");
+				//System.out.println("\nJSON Object: " + objSpecimen);
 				file.close();
 			}
 		}catch (IOException e) {

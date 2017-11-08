@@ -695,10 +695,10 @@ public class UtilityDao {
 		
 		//get taxon name and parent taxon name
 		if(sfParentSfCode != null) {
-			query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num join sampling_feature sf ON sftc.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_code='" + sfParentSfCode + "'";
+			query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num left join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num join sampling_feature sf ON sftc.sampling_feature_num = sf.sampling_feature_num where sf.sampling_feature_code='" + sfParentSfCode + "'";
 
 		} else {
-			query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num where sftc.sampling_feature_num=" + samplingFeatureNum;
+			query = "select tc.taxonomic_classifier_name,tc1.taxonomic_classifier_name from sampling_feature_taxonomic_classifier sftc join taxonomic_classifier tc on sftc.taxonomic_classifier_num=tc.taxonomic_classifier_num left join taxonomic_classifier tc1 on tc.parent_taxonomic_classifier_num=tc1.taxonomic_classifier_num where sftc.sampling_feature_num=" + samplingFeatureNum;
 		}
 		List<Object []> sftc = DatabaseUtil.getRecords(query);
 		if(sftc.size() != 0) {
@@ -723,15 +723,15 @@ public class UtilityDao {
 		samplingFeature.setSamplingTechniqueName(samplingTechniqueName);
 
 		//get landmark station
-		query = "select foic.feature_of_interest_cv_name,foicei.feature_of_interest_cv_external_id,foicei.feature_of_interest_cv_external_identifier_url,public.st_y(foic.feature_of_interest_geometry),public.st_x(foic.feature_of_interest_geometry) from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num JOIN feature_of_interest_cv_external_identifier foicei ON foic.feature_of_interest_cv_num = foicei.feature_of_interest_cv_num where feature_of_interest_type_num=1 and sf.sampling_feature_num=" + samplingFeatureNum;
+		query = "select foic.feature_of_interest_cv_name,foicei.feature_of_interest_cv_external_id,foicei.feature_of_interest_cv_external_identifier_url,trim(to_char(public.st_y(foic.feature_of_interest_geometry),'99999999999999999D99')),trim(to_char(public.st_x(foic.feature_of_interest_geometry),'99999999999999999D99')) from sampling_feature sf join feature_of_interest foi on sf.sampling_feature_num = foi.sampling_feature_num join feature_of_interest_cv foic on foi.feature_of_interest_cv_num= foic.feature_of_interest_cv_num JOIN feature_of_interest_cv_external_identifier foicei ON foic.feature_of_interest_cv_num = foicei.feature_of_interest_cv_num where feature_of_interest_type_num=1 and sf.sampling_feature_num=" + samplingFeatureNum;
 		List<Object []> lm = DatabaseUtil.getRecords(query); 
 		Landmark landmark = new Landmark();
 		if(lm.size() != 0) {
 			landmark.setLandmarkName((String) lm.get(0)[0]);
 			landmark.setGpnfID(Integer.parseInt((String) lm.get(0)[1]));
 			landmark.setGpnfURL((String) lm.get(0)[2]);
-			landmark.setLatitude((Double) lm.get(0)[3]);
-			landmark.setLongitude((Double) lm.get(0)[4]);	
+			landmark.setLatitude(Double.parseDouble((String) lm.get(0)[3]));
+			landmark.setLongitude(Double.parseDouble((String) lm.get(0)[4]));	
 			samplingFeature.setLandMark(landmark);
 		} else {
 			landmark.setLandmarkName(null);
