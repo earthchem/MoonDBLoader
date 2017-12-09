@@ -609,14 +609,14 @@ public class UtilityDao {
 	
 	//get analysis results by samplingFeatureNum
 	public static List<Object []> getAnalysisData(int samplingFeatureNum) {
-		String query = "SELECT variable_code,value,unit,method_code,lab_name,method_description FROM view_analysis where sampling_feature_num=" + samplingFeatureNum;
+		String query = "SELECT variable_code,value,unit,method_code,method_name,lab_name,method_description FROM view_analysis where sampling_feature_num=" + samplingFeatureNum;
 		List<Object []> results = DatabaseUtil.getRecords(query);
 		return results;
 	}
 	
 	//get analysis results by samplingFeatureNum
 	public static List<Object []> getAnalysisAnnotation(int samplingFeatureNum) {
-		String query = "select annotation_type_num,annotation_text from sampling_feature_annotation sfa join annotation an on an.annotation_num=sfa.annotation_num  where annotation_type_num in (3,5,9) and sfa.sampling_feature_num=" + samplingFeatureNum;
+		String query = "select annotation_type_num,annotation_text,annotation_code from sampling_feature_annotation sfa join annotation an on an.annotation_num=sfa.annotation_num  where annotation_type_num in (3,5,9) and sfa.sampling_feature_num=" + samplingFeatureNum;
 		List<Object []> results = DatabaseUtil.getRecords(query);
 		return results;
 	}

@@ -92,20 +92,26 @@ public class ExportToJSON {
 								Integer antTypeNum = (Integer) antResults.get(0)[0];
 								switch (antTypeNum) {
 								case 3:
-									objResult.put("analizedMaterial", antResults.get(0)[1]);	
+									objResult.put("analyzedMaterialCode", antResults.get(0)[2]);	
+									objResult.put("analyzedMaterialName", antResults.get(0)[1]);
 									//objResult.put("analysisTaxon", null);						
 									break;
 								case 5:
-									objResult.put("analizedMaterial", "MINERAL/"+antResults.get(0)[1]);	
+									objResult.put("analyzedMaterialCode", "MINERAL/"+antResults.get(0)[2]);	
+									objResult.put("analyzedMaterialName", "MINERAL/"+antResults.get(0)[1]);	
 									//objResult.put("analysisTaxon", antResults.get(0)[1]);	
 									break;
 								case 9:
-									objResult.put("analizedMaterial", "INCLUSION/"+antResults.get(0)[1]);	
+									objResult.put("analyzedMaterialCode", "INCLUSION/"+antResults.get(0)[2]);	
+									objResult.put("analyzedMaterialName", "INCLUSION/"+antResults.get(0)[1] + "INCLUSION");	
+
 									//objResult.put("analysisTaxon", antResults.get(0)[1]);	
 									break;
 								}								
 							} else {
-								objResult.put("analizedMaterial", "Not provided");	
+								objResult.put("analyzedMaterialCode", "NOT PROVIDED");	
+								objResult.put("analyzedMaterialName", "NOT PROVIDED");	
+
 
 								//objResult.put("analysisMaterialType", samplingFeature.getMaterialCode());	
 								//objResult.put("analysisTaxon", samplingFeature.getTaxonName());	
@@ -147,9 +153,10 @@ public class ExportToJSON {
 								objDataResult.put("variable", dataElement[0].toString());
 								objDataResult.put("value", dataElement[1].toString());
 								objDataResult.put("unit", dataElement[2].toString());
-								objDataResult.put("method", dataElement[3].toString());
-								objDataResult.put("laboratory", dataElement[4]);
-								objDataResult.put("methodComment", dataElement[5]);
+								objDataResult.put("methodCode", dataElement[3].toString());
+								objDataResult.put("methodName", dataElement[4].toString());
+								objDataResult.put("laboratory", dataElement[5]);
+								objDataResult.put("methodComment", dataElement[6]);
 
 								dataArr.add(objDataResult);
 								//objDataResults.put("dataResults", dataArr);
